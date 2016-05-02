@@ -6,18 +6,18 @@ a, a::before, a::after {
 }
 
 body{
-  background:#000;
+  background:#fff;
   }
 
 footer{
-  color:#FFF;
+  color:#112;
   font-family:TRAJAN, Garamond, Georgia, Century;
   font-size:80%;
   padding:6px;
   text-align:right;
 }
 footer a{
-  color:#FFF;
+  color:#222;
 }
 
 h1{
@@ -38,7 +38,7 @@ h4{
 
 
 header, header a, #header-menu{
-  background:#333;
+  background:#888;
   border-bottom: 1px solid rgba(200,200,200,0.1);
   color:#ccc;
   padding:0;
