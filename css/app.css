@@ -1,0 +1,112 @@
+a{color:#02c;}
+a:hover{border-radius:7px;}
+a, a::before, a::after {
+	-webkit-transition: all .6s;
+	transition: all .6s;
+}
+
+body{
+  background:#000;
+  }
+
+footer{
+  color:#FFF;
+  font-family:TRAJAN, Garamond, Georgia, Century;
+  font-size:80%;
+  padding:6px;
+  text-align:right;
+}
+footer a{
+  color:#FFF;
+}
+
+h1{
+  font-family:Forum, Trajan, Garamond, Georgia, Baskerville;
+}
+
+h4{
+  background: url("../img/film.gif") no-repeat left center;
+  font-size:1.2em;
+  font-weight:bold;
+  margin:5px;
+  padding:0 0 0 30px;
+}
+.reveal h2{
+ font-size:1.5em;
+ padding-top:20px;
+}
+
+
+header, header a, #header-menu{
+  background:#333;
+  border-bottom: 1px solid rgba(200,200,200,0.1);
+  color:#ccc;
+  padding:0;
+  text-shadow: -1px 1px 0 rgba(0,0,0,1);
+}
+header a:hover{
+  color:#FFF;
+}
+#lang-menu, #lang{background:#333;font-size:0.9em;}
+#header-menu{font-size:0.8em;}
+
+#topnav, .top-bar a{
+  background:#777;
+}
+.top-bar{
+  box-shadow:0px 0px 0px rgba(225,225,225,0.5) inset,//横のずれ、下のずれ、ぼかし具合、影の色
+		    0px 0px 0px rgba(225,225,225,0.2) inset,
+		    0px 1px 2px rgba(0,0,0,0.2) inset,
+		    0px -1px 8px rgba(0,0,0,0.5) inset,
+		    0px 1px 3px #555;
+  padding:0.3rem;
+  text-shadow: -1px -1px 0 rgba(50,50,50,1);
+}
+.top-bar a{
+  color:#fff;
+  font-weight:bold;
+}
+.top-bar a:hover{
+  background:#eee;
+  color:#339;
+  text-shadow: -1px -1px 0 rgba(50,50,50,0);
+}
+.top-bar, .top-bar ul {
+    background-color: rgb(121, 120, 120);
+}
+
+
+.menu{
+  display:inline;
+  word-wrap: break-word;
+}
+.menu li{
+  float:left;
+}
+.menu > li > a {
+    display: block;
+    padding: 0.5rem 0.5rem;
+    line-height: 1;
+}
+
+
+#page-top {
+    position: fixed;
+    bottom: 50px;
+    right: 20px;
+    font-size: 77%;
+}
+#page-top a {
+    background: #6c6;
+    text-decoration: none;
+    color: #fff;
+    width: 50px;
+    padding: 15px 0;
+    text-align: center;
+    display: block;
+    border-radius: 25px;
+}
+#page-top a:hover {
+    text-decoration: none;
+    background: #999;
+}
