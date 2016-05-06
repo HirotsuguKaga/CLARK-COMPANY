@@ -1,2 +1,2 @@
-# CLARK & COMPANY html
-Here is our company site repository.
+## CLARK & COMPANY html
+This repository is for our company website.
