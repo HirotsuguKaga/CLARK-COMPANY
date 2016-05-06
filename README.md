@@ -1,4 +1,2 @@
-# hello-world
-Just another repository!
-
-Here is my first github repository.
+# CLARK & COMPANY html
+Here is our Co. site repository.
