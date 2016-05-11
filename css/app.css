@@ -47,6 +47,7 @@ header, header a, #header-menu{
 header a:hover{
   color:#FFF;
 }
+#lang-menu{border-radius:0 0 8px 0; padding-right:20px;}
 #lang-menu, #lang{background:#333;font-size:0.9em;}
 #header-menu{font-size:0.8em;}
 
