@@ -1,0 +1,201 @@
+<html>
+
+  <head>
+    <title>新潟大学メールシステム（Gmail）</title>
+    <link rel="stylesheet" href="a.css" type="text/css" />
+    <script language="JavaScript" src="/sso/js/browserVersion.js"></script>
+    <script language="JavaScript" src="/sso/js/auth.js"></script>
+    <link rel="stylesheet" href="/sso/css/pman_c1_login.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes,">
+  </head>
+
+<script type="text/javascript">
+  <!--
+    if(navigator.userAgent.indexOf("MSIE") != -1) {
+      letter_spacing = "1.5";
+    } else if(navigator.userAgent.indexOf("Firefox") != -1) {
+      letter_spacing = "0.9";
+    } else {
+      letter_spacing = "1.2";
+    }
+
+    w = screen.availWidth;
+    h = screen.availHeight;
+    width_too_small = false;
+
+    if(screen.availWidth > 1000 ){
+      width = 460;
+      text_width_class = "medium";
+      white_side_margin = 15;
+    } else if(screen.availWidth > 490){
+      width = 250;
+      text_width_class = "small";
+      white_side_margin = 15;
+    } else {
+      width = 200;
+      text_width_class = "more_small";
+      width_too_small = true;
+      white_side_margin = 3;
+    }
+
+
+    if(screen.availHeight > 715 ){
+      table_margin_top_class = "margin"
+      tmp_space = "tmp_space"
+      height = 295;
+      input_space_height = 165;
+    } else {
+      table_margin_top_class = "margin_small"
+      tmp_space = "tmp_space_small"
+      height = 200;
+      input_space_height = 50;
+    }
+    
+    if(navigator.userAgent.match(/docomo|kddi|Up.Browser|J-PHONE|vodafone|SoftBank/i) != null){
+      var pass_lnk_diplay = false;
+    } else {
+      var pass_lnk_diplay = true;
+    }
+
+
+    
+      var form ='<form   name="Login"  action="/sso/UI/Login"  method="post">\
+                   <input type=\"hidden\" name=\"goto\" value=\"\">\
+                   <input type=\"hidden\" name=\"SunQueryParamsString\" value=\"Z3hfY2hhcnNldD1VVEYtOA==\">\
+                   <input type=\"hidden\" name=\"encoded\" value=\"false\">\
+                   <input type=\"hidden\" name=\"IDToken0\">\
+                   <input type=\"hidden\" name=\"IDButton\">\
+                 <input type="hidden" name="gx_charset" value="UTF-8"></form>'
+    
+
+    //form = form.split("</form>")[0];
+
+    var input_name = '<input type="text" istyle="3" format="*m" mode="alphabet" name="IDToken1" id="IDToken1" value="" class="' + text_width_class + '">'
+    var input_password = '<input type="password" istyle="3" format="*m" mode="alphabet" class="' + text_width_class + '" name="IDToken2" id="IDToken2" value="">'
+    var input_submit = '<a href="a.html" style="text-decoration:none"><input class="Btn1Def" type="submit" value="ログイン" style="padding-top: 2px"  />　　　</a>';
+    var pass_link='<div class="pass_link_wrapper">\
+                     <p style="margin:16px 0px 0px 0px; color:blue;">\
+                       <a href="http://www.iess.niigata-u.ac.jp/gmail/gmail_user_manual.pdf">基本操作マニュアル</a>\
+                     </p>\
+                     <p style="margin:2px 0px 0px 0px; color:blue;">\
+                       <a href="http://www.iess.niigata-u.ac.jp/gmail/gmail_QandA.pdf">ログインできない（Q&A）</a>\
+                     </p>\
+                     <p style="margin:3px 0px 1px 0px; color:blue;">\
+                       <a href="https://gmail.niigata-u.ac.jp/passwd">パスワード変更</a>\
+                       <span style="color: red;">＜学内のみ＞</span>\
+                     </p>\
+                   </div>';
+
+
+    document.write('<body style="background-color:#ddd;">');
+    document.write('  <div align="center">');
+    document.write(     form);
+    document.write('      <table id="'+table_margin_top_class+'" width="' + width  + '" height="' + height + '">');
+    document.write('        <tr><td style="font-size: 1px;" colspan="3">&nbsp;</td></tr>');
+    document.write('        <tr>');
+    document.write('          <td class="logo_space" colspan="3">');
+    document.write('            <img src="logo.gif" alt="" />');
+    document.write('          </td>');
+    document.write('        </tr>');
+    document.write('        <tr><td colspan="3" style="font-size: 1px;"></td></tr>');
+    document.write('        <tr>');
+    if(width_too_small == false){
+      document.write('          <td class="login_title" colspan="3">');
+      document.write('            メールシステム（Gmail）');
+    } else {
+      document.write('          <td class="login_title_small" colspan="3">');
+      document.write('            メールシステム<br />（Gmail）');
+    }
+    document.write('          </td>');
+    document.write('        </tr>');
+    document.write('        <tr height="' + input_space_height + '">');
+    document.write('          <td width="' + white_side_margin + '">');
+    document.write('          </td>');
+    if(width_too_small == false){
+      document.write('          <td align="center" class="input_space" valign="bottom">');
+    } else {
+      document.write('          <td class="input_space" valign="bottom">');
+    }
+    document.write('            <table class="tableview_none">');
+    //document.write('              <tr><td height="20px;" colspan="3"></td></tr>');
+    if(width_too_small == false){
+      document.write('              <tr><td class="LblLev2Txt" align="right">ユーザー名</td><td width="5">：&nbsp;&nbsp;</td><td>' + input_name + '</td></tr>');
+      document.write('              <tr><td class="LblLev2Txt" align="right" style="letter-spacing:'+ letter_spacing +';">パスワード</td><td width="5">：&nbsp;&nbsp;</td><td>' + input_password + '</td></tr>');
+      document.write('              <tr><td class="tmp_space_2" valign="middle" colspan="3"></td></tr>');
+      document.write('              <tr><td class="tmp_space_2" valign="middle" colspan="3"></td></tr>');
+      document.write('              <tr><td class="tmp_space_2" valign="middle" colspan="3"></td></tr>');
+      //document.write('              <tr><td class="tmp_space_2" valign="middle" colspan="3"></td></tr>');
+      //document.write('              <tr><td class="tmp_space_2" valign="middle" colspan="3"></td></tr>');
+      document.write('              <tr><td></td><td width="5"></td><td>' + input_submit + '</td></tr>');
+    } else {
+      document.write('              <tr><td>ユーザー名:</td></tr>');
+      document.write('              <tr><td><input type="text" istyle="3" format="*m" mode="alphabet" name="IDToken1" id="IDToken1" value="" class="wide"></td></tr>');
+      document.write('              <tr><td>パスワード:</td></tr>');
+      //document.write('              <tr><td>' + input_password + '</td></tr>');
+      document.write('              <tr><td><input type="password" istyle="3" format="*m" mode="alphabet" class="wide" name="IDToken2" id="IDToken2" value=""></td></tr>');
+      document.write('              <tr><td></td></tr>');
+      document.write('              <tr><td>' + input_submit + '</td></tr>');
+    }
+    document.write('            </table>');
+    document.write('            <table class="tableview_none" height="28px;" width="100%">');
+    if(pass_lnk_diplay == true){
+      document.write('              <tr><td valign="bottom" align="right">' + pass_link + '</td></tr>');
+      //document.write('              <tr><td height="3px;"> </td></tr>');
+    }
+    document.write('              <tr><td style="font-size: 1px;"></td></tr>');
+    document.write('              <tr><td style="font-size: 1px;"></td></tr>');
+    document.write('              <tr><td style="font-size: 1px;"></td></tr>');
+    document.write('              <tr><td style="font-size: 1px;"></td></tr>');
+    document.write('              <tr><td style="font-size: 1px;"></td></tr>');
+    document.write('              <tr><td style="font-size: 1px;"></td></tr>');
+    document.write('            </table>');
+    document.write('          </td>');
+    document.write('          <td width="' + white_side_margin + '"></td>');
+    document.write('        </tr>');
+    document.write('        <tr>');
+    document.write('          <td colspan="3" height="15"></td>');
+    document.write('        </tr>');
+    document.write('      </table>');
+    document.write('    </form>');
+    document.write('  </div>');
+
+
+  //-->
+</script>
+<noscript>
+<body>
+  <div width="100%" height="100%" style="background-color: #FFF;">
+
+
+  <form   name="Login"  action="/sso/UI/Login"  method="post">
+    <img src="/sso/images/logo.jpg" />
+
+    <h3>メールシステム</h3>
+    <h3>（Gmail）</h3>
+    <br />
+
+    <input type="hidden" name="goto" value="">
+    <input type="hidden" name="SunQueryParamsString" value="Z3hfY2hhcnNldD1VVEYtOA==">
+    <input type="hidden" name="encoded" value="false">
+    <input type="hidden" name="IDToken0\">
+    <input type="hidden" name="IDButton">
+
+    <div>
+      <div class="LblLev2Txt">ユーザー名：</div>
+      <div><input type="text" istyle="3" format="*m" mode="alphabet" name="IDToken1" id="IDToken1" value="" ></div>
+      <div class="LblLev2Txt">パスワード：</div>
+      <div><input type="password" istyle="3" format="*m" mode="alphabet" name="IDToken2" id="IDToken2" value=""></div>
+      <div><input type="submit" value="ログイン" /></div>
+    </div>
+  <input type="hidden" name="gx_charset" value="UTF-8"></form>
+
+</div>
+</noscript>
+
+
+</body>
+
+
+
+</html>
+
