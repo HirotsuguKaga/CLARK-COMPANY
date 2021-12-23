@@ -1,7 +1,7 @@
 * {margin:0; padding:0;font-family:"ヒラギノ明朝 ProN W6", "HiraMinProN-W6", "HG明朝E", "ＭＳ Ｐ明朝", "MS PMincho", "MS 明朝", serif}
 
 body{background-color:#111;/*背景色*/
- 	background-image:url("parts/wall.jpg");
+ 	background-image:url("parts/stone.jpg");
     line-height:1;
     margin:0}
 /* はみ出し対策 */
