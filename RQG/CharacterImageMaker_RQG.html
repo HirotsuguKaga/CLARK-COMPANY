@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="a.css">
+
+
+
+
+<body>
+
+
+
+
+
+<section id="main" style="overflow: hidden;">
+
+<div class="note" style="float: left;">
+<h1>RQG</h1>
+<br><br>
+<h3>gender</h3>
+<input type="radio" name="gender" value="female" id="female">female
+<input type="radio" name="gender" value="male" id="male" checked>male
+
+<h3>age</h3>
+<input type="radio" name="age" value="young">young
+<input type="radio" name="age" value="adult" checked>adult
+<input type="radio" name="age" value="old" checked>old
+
+<h3>race</h3>
+
+<input type="radio" name="race" value="young">Human(Satar)<br>
+<input type="radio" name="race" value="adult" checked>Human(Lunar)<br>
+<input type="radio" name="race" value="old" checked>Duck
+</div>
+
+<div class="note" style="float: left;border:3px dotted gray"><img src="img/fighter_m.png" class="img" id="chara"></div>
+
+
+
+
+<!-- メイン画面 --></section>
+
+
+<!--<input type="text" id="tester"><input type="button" onclick="go()">-->
+
+<section style="display: none;">
+<section id="blank"><br><br><br><br><br><br><br><br></section>
+
+
+</section>
+
+<script>  console.log('aaaa');
+
+
+function valueChange(){
+  document.getElementById("chara").src='img/fighter_m.png';
+    // イベントが発生した時の処理
+}
+function valueChange2(){
+  document.getElementById("chara").src='img/figher_f.png';
+    // イベントが発生した時の処理
+}
+
+let genderRadio = document.getElementById('male');
+genderRadio.addEventListener('change', valueChange);
+
+let genderRadio2 = document.getElementById('female');
+genderRadio2.addEventListener('change', valueChange2);
+
+
+
+</script>
+</body>

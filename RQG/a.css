@@ -1,0 +1,286 @@
+* {margin:0; padding:0;font-family:"ヒラギノ明朝 ProN W6", "HiraMinProN-W6", "HG明朝E", "ＭＳ Ｐ明朝", "MS PMincho", "MS 明朝", serif}
+
+body{background-color:#111;/*背景色*/
+ 	background-image:url("parts/wall.jpg");
+    line-height:1;
+    margin:0}
+/* はみ出し対策 */
+    width:100%;overflow:hidden;}
+
+h1, h2, h3, h4, h5, h6, p {
+	margin:0
+}
+
+h2{
+  text-align:center;
+}
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section {
+    display:block}
+
+hr {display:block;
+    height:1px;
+    border:0;
+    border-top:1px solid #cccccc;
+    margin:1em 0;
+    padding:0}
+
+ul {list-style:none;
+	padding:0}
+li {padding:0}
+input, select {
+    vertical-align:middle
+}
+
+
+/* clearfix（任意で） */
+*:after { display:block;clear:both;}
+
+hr {height:54px;background:url('parts/hr.png') no-repeat 50% 50%;margin:1em 0;border:0}
+hr.sword{height:33px;background:url('parts/hr2.png') no-repeat 50% 50%;margin:0.2em 0;border:0;background-size:contain;}
+hr.flower{height:45px;background:url('parts/hr3.png') no-repeat 50% 50%;margin:1em 0;border:0}
+hr.mask{height:120px;background:url('parts/mask.png') no-repeat 50% 50%;margin:3em 0;border:0}
+hr.bat{height:60px;background:url('parts/bat.png') no-repeat 50% 50%;margin:3em 0;border:0}
+
+/* ↓以下通常CSS */
+#main {/*メイン画面の書式およびスタイル*/
+	background-image:url("parts/paper.jpg");
+	line-height:160%;
+	width:90%;
+	max-width:650px;
+	border:1px solid #999;
+	margin:0 auto;
+	background-color:#fbfbdd;/*背景色*/
+	border-radius:0 0 20px 20px/0 0 5px 8px;
+	border-bottom:solid 1px #222;
+	border-right:solid 1px #333;
+		box-shadow: 4px 4px 6px rgba(0,0,0,0.4);
+	font-size:95%;
+	padding:10px;
+	padding-top:0px;
+	transition:height ease 500s; //3s   animation
+}
+	/*スマートフォンでタップしやすいようにaタグを予めブロックレベルに*/
+a {display:block;
+  -webkit-tap-highlight-color:transparent}
+a:link{color:#208;}
+a img{vertical-align:middle;}
+#main a.file{text-align:right}
+#main a.file:before{display:inline;content:url("parts/save1.png")}
+#main a.file:after{display:inline;content:url("parts/save2.png")}
+#shop1 a.shop:before{display:inline;content:url("parts/save1.png")}
+#shop1 a.shop:after{display:inline;content:url("parts/save2.png")}
+#main a{line-height:200%;font-size:105%;font-weight:bold;color:#208;text-decoration:none}
+#main a:visited{color:#208}
+//#main a:after{display:inline;content:url("parts/arrow.png")}
+.stat {color:white;padding:20px}
+.stat input{font-size:120%;color:white;background-color:transparent }
+
+h1{font-size:250%;margin:0}
+h2:before{content:url("parts/h2.png")}
+h2:after{display:inline;content:url("parts/h2r.png")}
+
+h3{font-size:140%}
+h3:before{content:url("parts/h3.png")}
+h4{margin-bottom:5px;margin-top:30px}
+h4:before{content:url("h4.png")}
+.note{margin:10px;color:#320;text-indent:1em}
+
+#title{background-image:url(dragon.png);background-repeat:no-repeat;background-position:center}
+#title a:after{content:none}
+.img{display:block;margin: 0 auto;max-width: 90%;padding:15px}
+.img2{display:block;margin: 15px auto;width: 85%;border:inset 3px #344}
+.img3{display:block;margin: 0 auto;max-width: 50%;padding:15px;}
+#monster a{padding:0.4em}
+
+.field{
+  height:310px;
+  background-size:contain;
+  position:relative;
+  margin:10px;
+}
+
+#enemy{
+  display:block;
+  max-width: 60%;
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:10px;
+  margin:auto;
+  //transition: all 0.5s;
+}
+.green :not(#enemy):not(#pop){filter: hue-rotate(90deg);}
+.red :not(#enemy):not(#pop){filter: hue-rotate(280deg);}
+.yellow :not(#enemy):not(#pop){filter: hue-rotate(180deg) saturate(270%) contrast(110%);}
+.gray{filter: grayscale(70%);}
+.dead{filter: invert(30%) opacity(55%); transition: all 1s;}
+.dark{filter: blur(5px) brightness(20%);}
+.darkzone :not(#enemy):not(#pop){filter: brightness(10%);}
+///////////////////////////////////
+input{
+  background-image: url("parts/paper2.jpg");
+  font-size:140%;
+}
+
+table, td, th{
+  border: 2px RGBA(100,100,100,0.3) solid;
+}
+//////////////////////////////////////////////
+#cont {
+  position: fixed;
+  top: 280px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  margin-top:280px;
+}
+#field{
+  position:sticky
+}
+#maze{
+  position:sticky;
+  top:0;
+  left:0;
+  right:0;
+  height;280px;
+  background-color:#002;
+  background-size:contain;
+  height:280px;
+  margin:auto;
+  max-width:540px;
+  margin-bottom:20px;
+}
+
+.maze{
+  width:100%;
+  max-width:540px;
+  position:absolute;
+}
+#r1,#r2,#r3,#r4,#r3s,#r4s,#rs1,#rd1,#rd2,#rd3,#rd3,#rd3s,#rd3s,#rd4,#rd4,#rd4s,#rd4s{
+  transform: scale(-1, 1);
+}
+#l4s,#r4s,{
+  filter:brightness(65%);
+}
+#l4,#r4,#l3s,#r3s{
+  filter:brightness(70%);
+}
+#f4{
+  filter:brightness(75%);
+}
+#l3,#r3{
+  filter:brightness(80%);
+}
+#f3{
+  filter:brightness(85%);
+}
+#l2,#r2{
+  filter:brightness(90%);
+}
+f2{
+  filter:brightness(95%);
+}
+
+.mazeMenu a{
+  margin: auto;
+  display:inline;
+}
+.mazeMenu a img{
+  margin: auto;
+  display:inline;
+  width:30%;
+  max-width:100px;
+}
+
+#pop {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%,-50%);
+  -webkit-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);
+  margin:0;
+  padding:5px;
+  color:white;
+  background-color:#557;
+  border-radius: 15px;
+  border:double 2px #FFF;
+  visibility:hidden;
+}
+
+#notification{
+  font-family:'sanserif';
+  font-weight:bold;
+  font-size:12px;
+  color:#bbb;
+text-shadow: 2px 2px 1px #333,
+             -2px 2px 1px #333,
+             2px -2px 1px #333,
+             -2px -2px 1px #333;
+  padding:0px;
+  text-align:right;
+  position: absolute;
+  top:3px;
+  right:7px;
+}
+span{
+  font-family:'sanserif';
+}
+
+.maze img{
+  visibility:hidden;
+}
+
+.flash{animation: haunted 1s 1;}
+@keyframes haunted {
+  0% {
+    filter: brightness(1000%);
+  } 28% {
+    filter: brightness(20%);
+  } 50% {
+    filter: sepia(1) contrast(2) brightness(200%);
+  } 60% {
+    filter: sepia(1) contrast(2) brightness(200%);
+  } 62% {
+    filter: brightness(20%);
+  } 96% {
+    filter: brightness(20%);
+  } 96% {
+    filter: brightness(400%);}
+}
+
+.fire{animation: fir 1s 1;}
+@keyframes fir {
+  0% {
+    filter: brightness(200%) hue-rotate(280deg);
+  } 28% {
+    filter: brightness(80%);
+  } 50% {
+    filter: hue-rotate(180deg);
+  } 60% {
+    filter: contrast(2) brightness(100%);
+  } 62% {
+    filter: brightness(50%);
+  } 96% {
+    filter: hue-rotate(90deg);
+  } 96% {
+    filter: brightness(100%);}
+}
+
+.shake {
+    animation: hurueru .1s  1;
+}
+
+@keyframes hurueru {
+    0% {transform: translate(0px, 0px) rotateZ(0deg)}
+    25% {transform: translate(4px, 6px) rotateZ(1deg)}
+    50% {transform: translate(0px, 4px) rotateZ(0deg)}
+    75% {transform: translate(8px, 0px) rotateZ(-1deg)}
+    100% {transform: translate(0px, 0px) rotateZ(0deg)}
+}
+
+.upsidedown{
+  transform: scale(1, -1);
+}
