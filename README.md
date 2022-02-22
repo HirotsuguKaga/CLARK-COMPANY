@@ -2,7 +2,7 @@
 This repository is for our company website.
 :octocat::octocat::octocat:　　
 :metal:
-'''mermaid
+```mermaid
 gantt
   Completed task :crit, done,    t1, 2022-01-03, 3d
   Active task    :      active,  t2, after t1,   3d
@@ -13,4 +13,4 @@ graph TD;
     A-->C;
     B-->D;
     C-->D;
-'''
+```
