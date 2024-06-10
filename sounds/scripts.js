@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         fadeOutButton.addEventListener('click', () => {
             clearInterval(loopInterval);
-            const fadeOutDuration = 3000; // フェードアウトの時間（ミリ秒）
+            const fadeOutDuration = 2000; // フェードアウトの時間（ミリ秒）
             const initialVolume = audio.volume;
             const fadeOutSteps = 20;
             const fadeOutStepTime = fadeOutDuration / fadeOutSteps;
@@ -99,19 +99,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     fadeOutAllButton.addEventListener('click', () => {
+        const fadeOutDuration = 2000; // フェードアウトの時間（ミリ秒）
+        const fadeOutSteps = 20;
+        const fadeOutStepTime = fadeOutDuration / fadeOutSteps;
+        
         soundControls.forEach(control => {
-            const playOnceButton = control.querySelector('.playOnce');
-            const loopPlayButton = control.querySelector('.loopPlay');
             const fadeOutButton = control.querySelector('.fadeOut');
             fadeOutButton.classList.add('fading');
         });
 
         for (let soundName in audioElements) {
             const audio = audioElements[soundName];
-            const fadeOutDuration = 3000; // フェードアウトの時間（ミリ秒）
             const initialVolume = audio.volume;
-            const fadeOutSteps = 20;
-            const fadeOutStepTime = fadeOutDuration / fadeOutSteps;
             
             let currentStep = 0;
 
@@ -137,6 +136,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 loopPlayButton.classList.remove('playing');
                 fadeOutButton.classList.remove('fading');
             });
-        }, 3000); // フェードアウトの時間と一致
+        }, fadeOutDuration);
     });
 });
