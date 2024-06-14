@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>50音入力アプリ</title>
+    <style>
+        body {
+            background-color: #CDE;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            font-size: 200%;
+            width: 100%;
+            height: 350px;
+            margin-bottom: 10px;
+        }
+        button {
+            font-size: 190%;
+            font-weight; bold;
+            padding: 5px 5px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        button:focus {
+            outline: 2px solid blue;
+        }
+    </style>
+</head>
+<body>
+    <h1>50音入力アプリ</h1>
+    z=進む、x=決定、c=戻る
+    <textarea id="output" readonly></textarea><br>
+    <div id="consonant-buttons">
+        <button class="consonant" onclick="selectConsonant('')" id="initial">あ行</button>
+        <button class="consonant" onclick="selectConsonant('k')">か行</button>
+        <button class="consonant" onclick="selectConsonant('s')">さ行</button>
+        <button class="consonant" onclick="selectConsonant('t')">た行</button>
+        <button class="consonant" onclick="selectConsonant('n')">な行</button>
+        <button class="consonant" onclick="selectConsonant('h')">は行</button>
+        <button class="consonant" onclick="selectConsonant('m')">ま行</button>
+        <button class="consonant" onclick="selectConsonant('y')">や行</button>
+        <button class="consonant" onclick="selectConsonant('r')">ら行</button>
+        <button class="consonant" onclick="selectConsonant('w')">わ行</button>
+        <button class="consonant" onclick="selectConsonant('yy')">ゃ行</button>
+        <button class="consonant" onclick="selectConsonant('g')">が行</button>
+        <button class="consonant" onclick="selectConsonant('z')">ざ行</button>
+        <button class="consonant" onclick="selectConsonant('d')">だ行</button>
+        <button class="consonant" onclick="selectConsonant('b')">ば行</button>
+        <button class="consonant" onclick="selectConsonant('p')">ぱ行</button>
+        <!-- <button class="consonant" onclick="selectConsonant('ky')">きゃ行</button>
+        <button class="consonant" onclick="selectConsonant('sh')">しゃ行</button>
+        <button class="consonant" onclick="selectConsonant('ch')">ちゃ行</button>
+        <button class="consonant" onclick="selectConsonant('ny')">にゃ行</button>
+        <button class="consonant" onclick="selectConsonant('hy')">ひゃ行</button>
+        <button class="consonant" onclick="selectConsonant('my')">みゃ行</button>
+        <button class="consonant" onclick="selectConsonant('ry')">りゃ行</button>
+        <button class="consonant" onclick="addPunctuation('、')">、</button>
+        <button class="consonant" onclick="addPunctuation('。')">。</button> -->
+        <button class="consonant" onclick="deleteLastCharacter()">一文字削除</button>
+    </div>
+    <div id="vowel-buttons" style="display: none;">
+        <div id="selected-consonant"></div>
+        <button class="vowel" onclick="selectVowel(0)">あ</button>
+        <button class="vowel" onclick="selectVowel(1)">い</button>
+        <button class="vowel" onclick="selectVowel(2)">う</button>
+        <button class="vowel" onclick="selectVowel(3)">え</button>
+        <button class="vowel" onclick="selectVowel(4)">お</button>
+    </div>
+    <br><br><br>
+        <H3 style="text-align: right;"><a href="https://x.com/clarkandcom" style="text-decoration: none; font-weight:bold; color: dark-blue;">By Clark &amp; Company <span class="material-icons"></span></a></H3>
+    <script>
+        const consonantMap = {
+            '': ['あ', 'い', 'う', 'え', 'お'],
+            'k': ['か', 'き', 'く', 'け', 'こ'],
+            's': ['さ', 'し', 'す', 'せ', 'そ'],
+            't': ['た', 'ち', 'つ', 'て', 'と'],
+            'n': ['な', 'に', 'ぬ', 'ね', 'の'],
+            'h': ['は', 'ひ', 'ふ', 'へ', 'ほ'],
+            'm': ['ま', 'み', 'む', 'め', 'も'],
+            'y': ['や', 'ゆ', 'よ', '、', '。'],
+            'r': ['ら', 'り', 'る', 'れ', 'ろ'],
+            'w': ['わ', 'を', 'ん', '、', '。'],
+            'yy': ['ゃ', 'ゅ', 'ょ', '、', '。'],
+            'g': ['が', 'ぎ', 'ぐ', 'げ', 'ご'],
+            'z': ['ざ', 'じ', 'ず', 'ぜ', 'ぞ'],
+            'd': ['だ', 'ぢ', 'づ', 'で', 'ど'],
+            'b': ['ば', 'び', 'ぶ', 'べ', 'ぼ'],
+            'p': ['ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ'],
+            'ky': ['きゃ', 'きぃ', 'きゅ', 'きぇ', 'きょ'],
+            'sh': ['しゃ', 'しぃ', 'しゅ', 'しぇ', 'しょ'],
+            'ch': ['ちゃ', 'ちぃ', 'ちゅ', 'ちぇ', 'ちょ'],
+            'ny': ['にゃ', 'にぃ', 'にゅ', 'にぇ', 'にょ'],
+            'hy': ['ひゃ', 'ひぃ', 'ひゅ', 'ひぇ', 'ひょ'],
+            'my': ['みゃ', 'みぃ', 'みゅ', 'みぇ', 'みょ'],
+            'ry': ['りゃ', 'りぃ', 'りゅ', 'りぇ', 'りょ']
+        };
+
+        let selectedConsonant = '';
+        let currentFocusIndex = 0;
+        let selectingConsonant = true;
+
+        document.addEventListener('keydown', (event) => {
+            const buttons = selectingConsonant
+                ? document.querySelectorAll('#consonant-buttons .consonant')
+                : document.querySelectorAll('#vowel-buttons .vowel');
+
+            if (event.code === 'KeyZ') {     //zキーの選択
+                event.preventDefault();
+                buttons[currentFocusIndex].blur();
+                currentFocusIndex = (currentFocusIndex + 1) % buttons.length;
+                buttons[currentFocusIndex].focus();
+            } else if (event.code === 'KeyX') {  //xキーの選択
+                event.preventDefault();
+                buttons[currentFocusIndex].click();
+            } else if (event.code === 'KeyC') {  //cキーの選択
+                event.preventDefault();
+                buttons[currentFocusIndex].blur();
+                currentFocusIndex = (currentFocusIndex - 1 + buttons.length) % buttons.length;
+                buttons[currentFocusIndex].focus();
+            }
+        });
+
+        function selectConsonant(consonant) {
+            selectedConsonant = consonant;
+            document.getElementById('selected-consonant').innerText = `選択した子音: ${consonant ? consonant : '母音'}`;
+            updateVowelButtons(consonant);
+            toggleButtonGroups();
+        }
+
+        function updateVowelButtons(consonant) {
+            const vowels = consonantMap[consonant] || [];
+            const vowelButtons = document.querySelectorAll('#vowel-buttons .vowel');
+            vowelButtons.forEach((button, index) => {
+                if (index < vowels.length) {
+                    button.style.display = 'inline-block';
+                    button.innerText = vowels[index];
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+        }
+
+        function selectVowel(vowelIndex) {
+            const vowels = consonantMap[selectedConsonant] || [];
+            if (vowelIndex >= 0 && vowelIndex < vowels.length) {
+                addText(vowels[vowelIndex]);
+            }
+            toggleButtonGroups();
+        }
+
+        function addText(text) {
+            const output = document.getElementById('output');
+            output.value += text;
+            output.scrollTop = output.scrollHeight;    //常に最終行にスクロール
+        }
+
+        function deleteLastCharacter() {
+            const output = document.getElementById('output');
+            output.value = output.value.slice(0, -1);
+        }
+
+        function addPunctuation(punctuation) {
+            addText(punctuation);
+        }
+
+        function toggleButtonGroups() {
+            selectingConsonant = !selectingConsonant;
+            currentFocusIndex = 0;
+
+            document.getElementById('consonant-buttons').style.display = selectingConsonant ? 'block' : 'none';
+            document.getElementById('vowel-buttons').style.display = selectingConsonant ? 'none' : 'block';
+
+            const nextButtons = selectingConsonant
+                ? document.querySelectorAll('#consonant-buttons .consonant')
+                : document.querySelectorAll('#vowel-buttons .vowel');
+            nextButtons[currentFocusIndex].focus();
+        }
+        
+        window.onload = function(){
+                document.getElementById('initial').focus();
+        }
+    </script>
+</body>
+</html>
