@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームブック・メーカー</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Material+Icons');
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Garamond', 'Times New Roman', serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        #controls {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0px;
+            background-color: #f1f1f1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #editor, #preview {
+            width: 50%;
+            height: calc(100% - 10px); /* Controlsの高さを差し引く */
+            border: solid 2px #555;
+            box-sizing: border-box;
+            margin: 5px;
+        }
+        #editor {
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            background-color: #fff;
+        }
+        #preview {
+            background-color: #fff;
+        }
+        button {
+            margin-left: 10px;
+            padding: 5px 5px;
+            background-color: #004Bcc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .material-icons{
+            font-size: 14px;
+        }
+        #download:hover {S
+            background-color: #0056b3;
+        }
+        h1{
+            text-align: center;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Garamond', 'Times New Roman', serif;
+            margin:0;
+            color: #660000;
+        }
+        #container {
+            display: flex;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+<h1>Gamebook Editor Ver.0.1</h1>
+    <div id="controls">
+        <input type="checkbox" id="convertFullWidth" checked> 全角「＃」を半角に変換　　
+        <button id="downloadText"><span class="material-icons">description</span> TXT</button>
+        <button id="downloadHTML"><span class="material-icons">code</span> HTML</button>
+        <button id="downloadPDF"><span class="material-icons">picture_as_pdf</span> PDF</button>
+        </div>
+    <div id="container">
+        <textarea id="editor" placeholder="ここにマークダウン記法でテキストを入力してください">
+#1
+ここにテキストを入力
+2へ
+3へ
+4へ
+5へ
+#2
+>引用文の例
+#3
+- リスト１
+- リスト２
+- リスト３
+1.番号付きリスト
+2.番号付きリスト
+3.番号付きリスト
+#4
+##見出し２
+###見出し３
+####見出し４
+#####見出し５
+#5
+#6
+#7
+### Powered by Gamebook Editor
+#### by Clark &amp; Company
+</textarea>
+        <iframe id="preview"></iframe>
+    </div>
+<h3>Powered by Gamebook Editor</h3>
+<h4>by Clark &amp; Company</h4>
+
+<script>// marked関数を定義
+        function marked(text) {
+            // marked.Rendererクラスの定義
+            const Renderer = function() {};
+            Renderer.prototype.heading = function (text, level) { // 見出し要素(h1)にidを付与
+                const id = 'p' + text;
+                return '<h' + level + ' id="' + id + '">' + text + '</h' + level + '>';
+            };
+            Renderer.prototype.paragraph = function (text) {
+                return '<p>' + text + '</p>';
+            };
+            Renderer.prototype.linktext = function (text, link) {
+                return '<p><a href="#p' + link + '">' + text + '</a></p>';///////////////<<--
+            };
+            Renderer.prototype.blockquote = function (text) {
+                return '<blockquote>' + text + '</blockquote>';
+            };
+            Renderer.prototype.code = function (code, language) {
+                return '<pre><code>' + code + '</code></pre>';
+            };
+            Renderer.prototype.codespan = function (text) {
+                return '<code>' + text + '</code>';
+            };
+            Renderer.prototype.list = function (body, ordered) {
+                const type = ordered ? 'ol' : 'ul';
+                return '<' + type + '>' + body + '</' + type + '>';
+            };
+            Renderer.prototype.listitem = function (text) {
+                return '<li>' + text + '</li>';
+            };
+            Renderer.prototype.table = function (header, body) {
+                return '<table><thead>' + header + '</thead><tbody>' + body + '</tbody></table>';
+            };
+            Renderer.prototype.tablerow = function (content) {
+                return '<tr>' + content + '</tr>';
+            };
+            Renderer.prototype.tablecell = function (content, flags) {
+                const type = flags.header ? 'th' : 'td';
+                return '<' + type + (flags.align ? ' style="text-align:' + flags.align + '"' : '') + '>' + content + '</' + type + '>';
+            };
+
+            // トークンを処理するパーサー
+        const lexer = function(src) {
+        const tokens = [];
+        const lines = src.split('\n');
+
+        for (let line of lines) {
+            if (line.startsWith('#')) {               //見出し
+                const match = line.match(/^(#{1,6})+(.*)$/);
+                if (match) {
+                    tokens.push({ type: 'heading', level: match[1].length, text: match[2] });
+                }
+            } else if (line.startsWith('>')) {        //引用
+                tokens.push({ type: 'blockquote', text: line.slice(1).trim() });
+            } else if (line.startsWith('```')) {      //
+                const language = line.slice(3).trim();
+                let code = '';
+                line = lines.shift();
+                while (line && !line.startsWith('```')) {
+                    code += line + '\n';
+                    line = lines.shift();
+                }
+                tokens.push({ type: 'code', text: code, language });
+            } else if (line.startsWith('    ') || line.startsWith('\t')) {  //コード
+                tokens.push({ type: 'code', text: line });
+            } else if (line.startsWith('- ') || line.startsWith('* ')) {  //リストの部品
+                tokens.push({ type: 'listitem', text: line.slice(2) });
+            } else if (/^\d+\.\s/.test(line)) {
+                tokens.push({ type: 'listitem', ordered: true, text: line.slice(line.indexOf('.') + 1).trim() });
+            } else if (line.startsWith('$')) {         //画像
+                const matchImage = line.match(/^\$(.+)/);
+                if (matchImage) {
+                    tokens.push({ type: 'image', text: matchImage[1].trim() });
+                }
+            } else if (line.trim() === '') {
+                tokens.push({ type: 'space' });
+            } else if (line.match(/(.*)(\d+)+へ$/)) { //リンクテキスト
+                matchLink = line.match(/(.*)(\d+)+へ$/); // 修正：任意の文字列 空白 数字 へ//////////////////////////
+                tokens.push({ type: 'linktext', link: matchLink[2],text: line });
+            } else {                                  //平文
+                tokens.push({ type: 'paragraph', text: line });
+            }
+        }
+        return tokens;
+    };
+
+    // トークンを処理するパーサー
+    const parser = function(tokens, options) {
+        const renderer = new Renderer();
+        let out = '', token;
+        while (token = tokens.shift()) {
+            switch (token.type) {
+                case 'heading':
+                    out += renderer.heading(token.text, token.level);
+                    break;
+                case 'blockquote':
+                    out += renderer.blockquote(token.text);
+                    break;
+                case 'code':
+                    out += renderer.code(token.text, token.language);
+                    break;
+                case 'codespan':
+                    out += renderer.codespan(token.text);
+                    break;
+                case 'list':
+                    out += renderer.list(token.body, token.ordered);
+                    break;
+                case 'listitem':
+                    out += renderer.listitem(token.text);
+                    break;
+                case 'table':
+                    out += renderer.table(token.header, token.body);
+                    break;
+                case 'tablerow':
+                    out += renderer.tablerow(token.content);
+                    break;
+                case 'tablecell':
+                    out += renderer.tablecell(token.content, token.flags);
+                    break;
+                case 'image':
+                    out += '<p><img src="img/' + token.text + '.webp" alt="' + token.text + '"></p>';
+                    break;
+                case 'linktext':
+                    out += renderer.linktext(token.text, token.link);
+                    break;
+                case 'paragraph':
+                    out += renderer.paragraph(token.text);
+                    break;
+            }
+        }
+                return out;
+    };
+            // 解析されレンダリングされたマークダウンを返す
+            return parser(lexer(text));
+    }
+///////////////////////////////////// プレビュー用のHTMLを作成 /////////////////////////////////////
+        document.addEventListener("DOMContentLoaded", () => {
+            const editor = document.getElementById("editor");
+            const preview = document.getElementById("preview");
+            const downloadHTMLButton = document.getElementById("downloadHTML");
+            const downloadPDFButton = document.getElementById("downloadPDF");
+            const convertFullWidthCheckbox = document.getElementById("convertFullWidth");
+
+            // 全角「＃」を半角「#」に変換する関数
+            function convertFullWidthToHalfWidth(text) {
+                return text.replace(/＃/g, '#');
+            }
+
+            // テキストエリアの内容をプレビューに反映する関数
+            function renderPreview() {
+                let markdownText = editor.value;
+                // チェックボックスがチェックされている場合、全角「＃」を変換
+                if (convertFullWidthCheckbox.checked) {
+                    markdownText = convertFullWidthToHalfWidth(markdownText);
+                }
+                // マークダウンをHTMLに変換
+                const htmlContent = marked(markdownText);
+                const fullHtmlContent = `
+                <!DOCTYPE html>
+                <html lang="ja">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>プレビュー</title>
+                    <style>
+                        body {
+                            font-family: 'Garamond', 'Times New Roman', serif;
+                            background-color: #fffaed;
+                            color: #333;
+                        }
+                        a{
+                            font-weight: bold;
+                            padding-left: 30px;
+                        }
+                        h1{
+                            font-family:;
+                            padding-top: 70px;
+                            text-align: center;
+                        }
+                        h1, h2, h3, h4, h5, h6 {
+                            font-family: 'Garamond', 'Times New Roman', serif;
+                            color: #660000;
+                            margin: 5px;
+                            line-height: 100%;
+                        }
+                        p {
+                            font-size: 1.2em;
+                            line-height: 1.4;
+                            margin: 0.8em;
+                        }
+                        li{
+                            padding-left: 20px;
+                        }
+                        blockquote {
+                            margin: auto;
+                            padding-left: 10px;
+                            font-style: italic;
+                            color: #000;
+                            width: 75%;
+                            background: #ddd;
+                            border-radius: 0px 10px 0px 10px;
+                        }
+                        code {
+                            background-color: #f4f4f4;
+                            padding: 2px 4px;
+                            font-family: 'Courier New', monospace;
+                        }
+                        pre {
+                            background-color: #f4f4f4;
+                            padding: 10px;
+                            overflow: auto;
+                            font-family: 'Courier New', monospace;
+                        }
+                    </style>
+                </head>
+                <body>
+                ${htmlContent}
+                </body>
+                </html>`;
+                // プレビューエリアに反映
+                preview.srcdoc = fullHtmlContent;
+            }
+
+            // テキストエリアの内容が変わるたびにプレビューを更新
+            editor.addEventListener("input", renderPreview);
+            // チェックボックスの状態が変わるたびにプレビューを更新
+            convertFullWidthCheckbox.addEventListener("change", renderPreview);
+
+            // HTMLファイルを別タブで開き、印刷ダイアログを表示 /////
+            downloadPDFButton.addEventListener("click", () => {
+                let markdownText = editor.value;
+                // チェックボックスがチェックされている場合、全角「＃」を変換
+                if (convertFullWidthCheckbox.checked) {
+                    markdownText = convertFullWidthToHalfWidth(markdownText);
+                }
+////////////////////////////// PDF印刷用コンテンツを生成 /////////////////////////////////
+                const htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームブック</title>
+    <style>
+        @page { size: b6; margin: 15mm; }
+        body {
+            font-family: 'Garamond', 'Times New Roman', serif;
+            background-color: #fff;
+            color: #333;
+        }
+        a{
+            font-weight: bold;
+            padding-left: 30px;
+        }
+        h1{break-before: page;}
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Garamond', 'Times New Roman', serif;
+            color: #660000;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        blockquote {
+            margin: auto;
+            padding-left: 10px;
+            font-style: italic;
+            color: #000;
+            width: 75%;
+            background: #eee;
+            border-radius: 0px 10px 0px 10px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            overflow: auto;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body onload="window.print()">
+${marked(markdownText)}
+</body>
+</html>`;
+                // 別タブでHTMLを開き、印刷ダイアログを表示
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(htmlContent);
+                printWindow.document.close();
+            });
+
+            // 初期プレビューを表示
+            renderPreview();
+//////////////////////// テキストファイルをダウンロードする関数////////////////////////////////////////////////
+document.querySelector('#downloadText').addEventListener('click', () => {
+    const output = document.querySelector('#editor').value;
+    downloadAsFile(output, "download.txt");
+});
+
+function downloadAsFile(text, filename) {
+  const blobText = new Blob([text], { type: "text/plain"});
+  const url = URL.createObjectURL(blobText);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+        
+//////////////////////// HTMLファイルとして出力する関数////////////////////////////////////////////////////////
+function downloadHTMLFile(content, filename) {
+    // Blobを作成
+    const blob = new Blob([content], { type: 'text/html' });
+    // ダウンロードリンクを作成
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    // リンクをクリックしてダウンロードを開始
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ダウンロードボタンのイベントリスナー
+downloadHTMLButton.addEventListener("click", () => {
+    let markdownText = editor.value;
+    // チェックボックスがチェックされている場合、全角「＃」を変換
+    if (convertFullWidthCheckbox.checked) {
+        markdownText = convertFullWidthToHalfWidth(markdownText);
+    }
+    // HTMLコンテンツを生成
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームブック</title>
+    <style>
+        body {
+            font-family: 'Garamond', 'Times New Roman', serif;
+            background-color: #edd;
+            color: #333;
+        }
+        #container{
+            background-color: #fffaed;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        a{
+            font-weight: bold;
+            padding-left: 30px;
+        }
+        h1{
+            font-family:;
+            padding-top: 90px;
+            text-align: center;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Garamond', 'Times New Roman', serif;
+            color: #660000;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        blockquote {
+            margin: auto;
+            padding-left: 10px;
+            font-style: italic;
+            color: #000;
+            width: 75%;
+            background: #eee;
+            border-radius: 0px 10px 0px 10px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;S
+            overflow: auto;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body><div id="container">
+${marked(markdownText)}
+</div></body>
+</html>`;
+    // HTMLファイルをダウンロード
+    downloadHTMLFile(htmlContent, 'gamebook.html');
+});
+        });
+
+    </script>
+</body>
+</html>
