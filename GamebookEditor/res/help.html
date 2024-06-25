@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームブック・エディター</title>
+  <link rel="stylesheet" href="res/GE.css" type="text/css">
+</head>
+<body>
+<h1 id="title">Gamebook Editor Ver.0.2</h1>
+    <div id="controls">
+        <button onclick="deleteText()" title="編集中のテキストをすべて削除します"><span class="material-icons">refresh</span> NEW</button>
+        <input type="file" id="fileInput" style="display:none;">
+        <button id="loadButton" title="テキストファイルを読み込みます"><span class="material-icons">open_in_new</span> OPEN TXT</button>
+        <span id="fileName" title="テキストファイルの名称"></span>        
+        <button onclick="saveText()" title="編集中のテキストをブラウザに一時保存します">Save</button>
+        <button onclick="loadText()" title="ブラウザに一時保存したテキストを読み込みます">Load</button>　
+        <input type="checkbox" id="convertFullWidthAlnum" checked> 全角英数記号を半角に変換　
+        <button id="downloadText" title="テキストファイルをダウンロードします"><span class="material-icons">description</span> TXT</button>
+        <button id="downloadHTML" title="HTMLファイルをダウンロードします"><span class="material-icons">code</span> HTML</button>
+        <button id="downloadPDF" title="印刷ダイアログを開きます"><span class="material-icons">picture_as_pdf</span> PDF</button>
+        </div>
+
+        <span class="gear-icon"><span  class="material-icons" onclick="window.open('res/help.html','_blank')" title="ヘルプ"></span>
+        <span  class="material-icons" onclick="toggleSettings()" title="設定">settings</span></span>
+
+    <div id="saveWarning">
+        <p>編集中のテキストをブラウザに一時保存します（既存のデータがある場合は上書きされます）</p>
+        <p>*重要なデータはテキストファイルとして保存してください。</p>
+        <input type="checkbox" id="dontShowSaveAgain"> このウィンドウを再度表示しない<br>
+        <button onclick="proceedSave()">OK</button>
+        <button onclick="cancelSave()">キャンセル</button>
+    </div>
+
+    <div id="loadWarning">
+        <p>編集中のテキストを破棄してブラウザに保存されたテキストを読み込みます？</p>
+        <input type="checkbox" id="dontShowLoadAgain"> このウィンドウを再度表示しない<br>
+        <button onclick="proceedLoad()">OK</button>
+        <button onclick="cancelLoad()">キャンセル</button>
+    </div>
+
+    <div id="deleteWarning">
+        <p>編集中のテキストを全て削除します。</p>
+        <input type="checkbox" id="dontShowDeleteAgain"> このウィンドウを再度表示しない<br>
+        <button onclick="proceedDelete()">OK</button>
+        <button onclick="cancelDelete()">キャンセル</button>
+    </div>
+
+    <div id="settings">
+        <button onclick="resetWarnings()">警告の非表示を解除</button>
+        <button onclick="closeSettings()">閉じる</button>
+    </div>
+
+    <div id="alert"></div>
+
+    <div id="container">
+        <textarea id="editor" placeholder="ここにマークダウン記法でテキストを入力してください">
+#ゲームブック・エディター
+テキスト入力でゲームブックを作成するアプリです。画面左側のテキストエリアにテキストを入力すると、右側にプレビューを表示します。
+
+#見出し
+行頭に「#」マークを書くと、その行を「大見出し」として表示します。特に「#」マークの直後に半角数字を書いて改行した場合、次項で取り上げるリンクの移動先となるパラグラフとして機能します。
+また、「#」を複数重ねると中見出しや小見出しに変換します。以下にその例を示します。
+##中見出し
+###小見出し
+####小々見出し
+#####小々々見出し
+######小々々々見出し
+
+#リンク
+半角数字の直後に平仮名の「へ」を記述して改行すると、その番号パラグラフへのリンクに変換します。以下にその例を示します。
+はい　1へ
+いいえ　2へ
+
+#挿絵
+行頭の「$」マークの直後にファイル名を記して改行すると、「img」フォルダの中にあるwebp画像を表示します。
+（ゲームブックをHTMLファイルとして出力した場合、同じ場所にimgフォルダを置いてください）
+以下に挿絵の例を示します。
+$arrow
+$barrel
+$books
+$box
+$crate
+$dice
+$door
+$flower
+$halberd
+$hr
+$pick
+$pot
+$skull
+$spear
+$sword
+$swords
+
+#その他の書式
+##引用文
+行頭に「〉」を記述すると、その行は斜体文字の「引用文」に変換されます。
+>これは引用文の例です
+##リスト
+行頭に「- 」（ハイフンと半角空白）を記述すると、その行は「箇条書きリスト」に変換されます。
+また、行頭に「1.」といった半角数字とピリオドの組み合わせを記述すると、その行は「番号付きリスト」に変換されます。
+- リスト１
+- リスト２
+- リスト３
+1.番号付きリスト
+2.番号付きリスト
+3.番号付きリスト
+##コード文
+_これはコード文の例です。
+##強調文字
+字の文や引用文、リストにおいて、文の一部を「**」（二つのアスタリスク）で挟むと、挟まれた箇所が太字で表示されます。
+例：これは**強調文字**の例です。**半角のアスタリスク二個**で**強調**したい語句を挟んでください。
+#テキストファイルの読み込み
+
+
+#ファイルの出力
+
+
+#補記
+
+&copy; 2024 Clark & Company
+### Powered by Gamebook Editor
+#### by Clark &amp; Company
+
+### Powered by Gamebook Editor
+#### by Clark &amp; Company
+</textarea>
+        <iframe id="preview"></iframe>
+    </div>
+<small><a href="https://x.com/clarkandcom">by Clark &amp; Company</a></small>
+
+<script src="res/encoding.min.js"></script>
+<script src="res/GE.js"></script>
+</body>
+</html>

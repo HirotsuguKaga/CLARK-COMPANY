@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームブック・エディター</title>
+  <link rel="stylesheet" href="res/GE.css" type="text/css">
+</head>
+<body>
+<h1 id="title">Gamebook Editor Ver.0.2</h1>
+    <div id="controls">
+        <button onclick="deleteText()" title="編集中のテキストをすべて削除します"><span class="material-icons">refresh</span> NEW</button>
+        <input type="file" id="fileInput" style="display:none;">
+        <button id="loadButton" title="テキストファイルを読み込みます"><span class="material-icons">open_in_new</span> OPEN TXT</button>
+        <span id="fileName" title="テキストファイルの名称"></span>        
+        <button onclick="saveText()" title="編集中のテキストをブラウザに一時保存します">Save</button>
+        <button onclick="loadText()" title="ブラウザに一時保存したテキストを読み込みます">Load</button>　
+        <input type="checkbox" id="convertFullWidthAlnum" checked> 全角英数記号を半角に変換　
+        <button id="downloadText" title="テキストファイルをダウンロードします"><span class="material-icons">description</span> TXT</button>
+        <button id="downloadHTML" title="HTMLファイルをダウンロードします"><span class="material-icons">code</span> HTML</button>
+        <button id="downloadPDF" title="印刷ダイアログを開きます"><span class="material-icons">picture_as_pdf</span> PDF</button>
+        </div>
+
+        <span class="gear-icon"><span  class="material-icons" onclick="window.open('help.html','_blank')" title="ヘルプ">help</span>
+        <span  class="material-icons" onclick="toggleSettings()" title="設定">settings</span></span>
+
+    <div id="saveWarning">
+        <p>編集中のテキストをブラウザに一時保存します（既存のデータがある場合は上書きされます）</p>
+        <p>*重要なデータはテキストファイルとして保存してください。</p>
+        <input type="checkbox" id="dontShowSaveAgain"> このウィンドウを再度表示しない<br>
+        <button onclick="proceedSave()">OK</button>
+        <button onclick="cancelSave()">キャンセル</button>
+    </div>
+
+    <div id="loadWarning">
+        <p>編集中のテキストを破棄してブラウザに保存されたテキストを読み込みます？</p>
+        <input type="checkbox" id="dontShowLoadAgain"> このウィンドウを再度表示しない<br>
+        <button onclick="proceedLoad()">OK</button>
+        <button onclick="cancelLoad()">キャンセル</button>
+    </div>
+
+    <div id="deleteWarning">
+        <p>編集中のテキストを全て削除します。</p>
+        <input type="checkbox" id="dontShowDeleteAgain"> このウィンドウを再度表示しない<br>
+        <button onclick="proceedDelete()">OK</button>
+        <button onclick="cancelDelete()">キャンセル</button>
+    </div>
+
+    <div id="settings">
+        <button onclick="resetWarnings()">警告の非表示を解除</button>
+        <button onclick="closeSettings()">閉じる</button>
+    </div>
+
+    <div id="alert"></div>
+
+    <div id="container">
+        <textarea id="editor" placeholder="ここにマークダウン記法でテキストを入力してください">
+#ゲームブック・エディター
+#1
+ここにテキストを入力
+2へ
+3へ
+4へ
+5へ
+#2
+>引用文
+-箇条書き
+_コード文
+**強調表示**
+$hr
+#3
+#4
+#5
+### Powered by Gamebook Editor
+#### by Clark &amp; Company
+</textarea>
+        <iframe id="preview"></iframe>
+    </div>
+<small><a href="https://x.com/clarkandcom">by Clark &amp; Company</a></small>
+
+<script src="res/encoding.min.js"></script>
+<script src="res/GE.js"></script>
+</body>
+</html>
