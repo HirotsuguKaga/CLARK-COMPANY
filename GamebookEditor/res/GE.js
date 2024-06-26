@@ -190,15 +190,12 @@ function marked(text) {
     };
     Renderer.prototype.paragraph = function (text) {
         text = text.replace(/^\\/gm, '');  //行頭のバックスラッシュを取り除く
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  //strongタグを付与
         return '<p>' + text + '</p>';
     };
     Renderer.prototype.linktext = function (text, link) {
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  //strongタグを付与
         return '<p><a href="#p' + link + '">' + text + '</a></p>';///////////////<<--
     };
     Renderer.prototype.blockquote = function (text) {
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  //strongタグを付与
         return '<blockquote>' + text + '</blockquote>';
     };
     Renderer.prototype.code = function (code, language) {
@@ -219,6 +216,15 @@ const lexer = function(src) {
     const lines = src.split('\n');
 
     for (let line of lines) {
+          // strongタグを付与する
+        line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          // 二個の連続したバックスラッシュを一意なプレースホルダーに置き換える
+        line = line.replace(/([^\\\\])\\\\/g, '&bsol;&bsol;');
+          // 行頭や行末以外にある単独のバックスラッシュを改行タグに置き換える
+        line = line.replace(/([^\\])\\([^\\])/g, '$1<br>$2');
+          // エスケープしたバックスラッシュを元に戻す
+        line = line.replace(/&bsol;&bsol;/g, '\\');
+
         if (line.startsWith('#')) {                                    //見出し
             const match = line.match(/^(#{1,6})+(.*)$/);
             if (match) {
@@ -286,6 +292,85 @@ const parser = function(tokens, options) {
         // 解析されレンダリングされたマークダウンを返す
         return parser(lexer(text));
 }
+
+//////////////////////////////////////  共通CSS // /////////////////////////////////////////////////
+const css = `
+    body {
+        font-family:  'Noto Serif JP', 'Garamond', 'Times New Roman', serif;
+        background-color: #edd;
+        background-image: url(img/wall.webp);
+        margin: 0;
+        padding: 0;
+    }
+    #container{
+        background-color: #fffaed;
+        background-image: url(img/paper.webp);
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 15px;
+    }
+    a{
+        font-weight: bold;
+        padding-left: 35px;
+    }
+    h1{
+        font-family:;
+        padding-top: 70px;
+        text-align: center;
+    }
+    h2{
+        padding-top: 1em;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Garamond', 'Times New Roman', serif;
+        color: #660000;
+        margin: 5px;
+        line-height: 100%;
+        padding-left: 20px;
+    }
+    p {
+        font-size: 1.2em;
+        line-height: 1.2;
+        margin: 0.5em;
+    }
+    li{
+        font-size: 1.2em;
+        padding-left: 30px;
+    }
+    ol{
+        font-size: 1.2em;
+        padding-left: 30px;
+    }
+    blockquote {
+        font-style: italic;
+        background: rgba(200,200,200,.5);
+        border-radius: 0px 10px 0px 10px;
+        margin: 0 auto;
+        width: 75%;
+    }
+    code{
+        background: none;
+        font-family:"ヒラギノ丸ゴ Pro W4","ヒラギノ丸ゴ Pro","Hiragino Maru Gothic Pro","ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro","HG丸ｺﾞｼｯｸM-PRO","HGMaruGothicMPRO";
+        font-weight: bold;
+        display: block;
+        margin: 0 auto;
+        padding: 10px;
+        width: 75%;
+    }
+    pre {
+        background-color: #f4f4f4;
+        padding: 10px;
+        overflow: auto;
+        font-family: 'Courier New', monospace;
+    }
+    img{
+        margin: auto;
+        display: block;
+        max-width: 80%;
+        max-height: 180px;
+        opacity: 0.8;
+    }`;
+
 ///////////////////////////////////// プレビュー用のHTMLを作成 /////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
 const editor = document.getElementById("editor");
@@ -319,78 +404,10 @@ function renderPreview() {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>プレビュー</title>
-                <style>
-                    body {
-                        font-family: 'Garamond', 'Times New Roman', serif;
-                        background-color: #fffaed;
-                        background-image: url(img/paper.webp);
-                        color: #000;
-                    }
-                    a{
-                        font-weight: bold;
-                        padding-left: 35px;
-                    }
-                    h1{
-                        font-family:;
-                        padding-top: 70px;
-                        text-align: center;
-                    }
-                    h2{
-                        padding-top: 1em;
-                    }
-                    h1, h2, h3, h4, h5, h6 {
-                        font-family: 'Garamond', 'Times New Roman', serif;
-                        color: #660000;
-                        margin: 5px;
-                        line-height: 100%;
-                    }
-                    p {
-                        font-size: 1.2em;
-                        line-height: 1.2;
-                        margin: 0.4em;
-                    }
-                    li{
-                        font-size: 1.2em;
-                        padding-left: 30px;
-                    }
-                    ol{
-                        font-size: 1.2em;
-                        padding-left: 30px;
-                    }
-                    blockquote {
-                        margin: auto;
-                        padding-left: 10px;
-                        font-style: italic;
-                        color: #000;
-                        width: 75%;
-                        background: rgba(200,200,200,.5);
-                        border-radius: 0px 10px 0px 10px;
-                    }
-                    code{
-                        background: none;
-                        font-family:"ヒラギノ丸ゴ Pro W4","ヒラギノ丸ゴ Pro","Hiragino Maru Gothic Pro","ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro","HG丸ｺﾞｼｯｸM-PRO","HGMaruGothicMPRO";
-                        font-weight: bold;
-                        padding: 20px;
-                        display: block;
-                        margin: auto;
-                    }
-                    pre {
-                        background-color: #f4f4f4;
-                        padding: 10px;
-                        overflow: auto;
-                        font-family: 'Courier New', monospace;
-                    }
-                    img{
-                        margin: auto;
-                        display: block;
-                        max-width: 80%;
-                        max-height: 180px;
-                        opacity: 0.8;
-                    }
-                </style>
+                <style>` + css + `</style>
             </head>
-            <body>
-            ${htmlContent}
+            <body><div id="container">
+            ${htmlContent}</div>
             </body>
             </html>`;
 
@@ -420,78 +437,12 @@ downloadPDFButton.addEventListener("click", () => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>` + fileName + `</title>
-    <style>
-        @page { size: b6; margin: 15mm; }
-         body {
-            font-family: 'Garamond', 'Times New Roman', serif;
-            background-color: #fffaed;
-            background-image: url(img/paper.webp);
-            color: #000;
-        }
-        a{
-            font-weight: bold;
-            padding-left: 35px;
-        }
-        h1{
-            font-family:;
-            padding-top: 70px;
-            text-align: center;
-            break-before: page;
-        }
-        h2{
-            padding-top: 1em;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Garamond', 'Times New Roman', serif;
-            color: #660000;
-        }
-        p {
-            font-size: 1.2em;
-            line-height: 1.2;
-            margin: 0.4em;
-        }
-        blockquote {
-            margin: auto;
-            padding-left: 10px;
-            font-style: italic;
-            color: #000;
-            width: 75%;
-            background: #eee;
-            border-radius: 0px 10px 0px 10px;
-        }
-        li{
-            font-size: 1.2em;
-            padding-left: 30px;
-        }
-        ol{
-            font-size: 1.2em;
-            padding-left: 30px;
-        }
-        code{
-           background: none;
-           font-family:"ヒラギノ丸ゴ Pro W4","ヒラギノ丸ゴ Pro","Hiragino Maru Gothic Pro","ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro","HG丸ｺﾞｼｯｸM-PRO","HGMaruGothicMPRO";
-           font-weight: bold;
-           padding: 20px;
-           display: block;
-           margin: auto;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            overflow: auto;
-            font-family: 'Courier New', monospace;
-        }
-        img{
-            margin: auto;
-            display: block;
-            max-width: 80%;
-            max-height: 180px;
-            opacity: 0.8;
-        }
-    </style>
+    <style>@page { size: b6; margin: 15mm; }` + css + `</style>
 </head>
 <body onload="window.print()">
+<div id="container">
 ${marked(markdownText)}
+</div>
 </body>
 </html>`;
     // 別タブでHTMLを開き、印刷ダイアログを表示
@@ -542,6 +493,8 @@ downloadHTMLButton.addEventListener("click", () => {
     if (convertFullWidthAlnumCheckbox.checked) {
         markdownText = convertFullWidthAlnumToHalfWidth(markdownText);
     }
+
+    
     // HTMLコンテンツを生成
     const htmlContent = `
 <!DOCTYPE html>
@@ -549,81 +502,8 @@ downloadHTMLButton.addEventListener("click", () => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ゲームブック</title>
-    <style>
-        body {
-            font-family: 'Garamond', 'Times New Roman', serif;
-            background-color: #edd;
-            background-image: url(img/wall.webp);
-            color: #333;
-        }
-        #container{
-            background-color: #fffaed;
-            background-image: url(img/paper.webp);
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-        a{
-            font-weight: bold;
-            padding-left: 35px;
-        }
-        h1{
-            font-family:;
-            padding-top: 90px;
-            text-align: center;
-        }
-        h2{
-            padding-top: 1em;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Garamond', 'Times New Roman', serif;
-            color: #660000;
-        }
-        p {
-            font-size: 1.2em;
-            line-height: 1.2;
-            margin: 0.4em;
-        }
-        blockquote {
-            margin: auto;
-            padding-left: 10px;
-            font-style: italic;
-            color: #000;
-            width: 75%;
-            background: rgba(200,200,200,.5);
-            border-radius: 0px 10px 0px 10px;
-        }
-        li{
-            font-size: 1.2em;
-            padding-left: 30px;
-        }
-        ol{
-            font-size: 1.2em;
-            padding-left: 30px;
-        }
-        code{
-           background: none;
-           font-family:"ヒラギノ丸ゴ Pro W4","ヒラギノ丸ゴ Pro","Hiragino Maru Gothic Pro","ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro","HG丸ｺﾞｼｯｸM-PRO","HGMaruGothicMPRO";
-           font-weight: bold;
-           padding: 20px;
-           display: block;
-           margin: auto;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            overflow: auto;
-            font-family: 'Courier New', monospace;
-        }
-        img{
-            margin: auto;
-            display: block;
-            max-width: 80%;
-            max-height: 180px;
-            opacity: 0.8;
-        }
-    </style>
+    <title>` + fileName + `</title>
+    <style>` + css + `</style>
 </head>
 <body><div id="container">
 ${marked(markdownText)}

@@ -8,12 +8,11 @@ body {
 	height: 100vh;
 	margin: 0;
 	font-family: 'Garamond', 'Times New Roman', serif;
-	background-color: #ddd;
+	background-color: #333;
 	background-image: url(../img/wall.webp);
-	color: #000;
+	color: #fff;
 }
 #controls {
-	color: white;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -37,6 +36,7 @@ body {
 	background-color: #fff;
 	background-image: url(../img/paper.webp);
 	max-width: 600px;
+	padding: 0;
 }
 button {
 	margin-left: 10px;
@@ -74,18 +74,12 @@ h1, h2, h3, h4, h5, h6 {
 	font-family: 'Garamond', 'Times New Roman', serif;
 	margin:0;
 	color: #660000;
+	padding-left: 10px;
 }
 #container {
 	display: flex;
 	flex-grow: 1;
 	justify-content: center;
-}
-img{
-	margin: auto;
-	display: block;
-	max-width: 80%;
-	max-height: 180px;
-	opacity: 0.8;
 }
 #fileName{
 	background: #eee;
