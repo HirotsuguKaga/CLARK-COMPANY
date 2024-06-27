@@ -238,9 +238,13 @@ const lexer = function(src) {
             tokens.push({ type: 'listitem', text: line.slice(1) });
         } else if (/^\d+\.\s/.test(line)) {
             tokens.push({ type: 'listitem', ordered: true, text: line.slice(line.indexOf('.') + 1).trim() });
-        } else if (line.startsWith('$')) {                             //画像
+        } else if (line.startsWith('$')) {                             //画像・動画
+            // 行頭の $ の直後に拡張子が mp4 のファイル名をビデオタグに変換
+            const matchVideo = line.match(/^\$(.*\.mp4)$/);
             const matchImage = line.match(/^\$(.+)/);
-            if (matchImage) {
+            if (matchVideo) {
+                tokens.push({ type: 'video', text: matchVideo[1].trim() });
+            }else if (matchImage) {
                 tokens.push({ type: 'image', text: matchImage[1].trim() });
             }
         } else if (line.trim() === '') {                               //スペース
@@ -278,6 +282,9 @@ const parser = function(tokens, options) {
                 break;
             case 'image':
                 out += '<p><img src="img/' + token.text + '.webp" alt="' + token.text + '"></p>';
+                break;
+            case 'video':
+                out += '<div class="video"><video controls><source src="img/' + token.text + '" type="video/mp4">Your browser does not support the video tag.</video></div>';
                 break;
             case 'linktext':
                 out += renderer.linktext(token.text, token.link);
@@ -369,6 +376,14 @@ const css = `
         max-width: 80%;
         max-height: 180px;
         opacity: 0.8;
+    }
+    video{
+        max-width: 90%;
+    }
+    .video{;
+        margin: auto;
+        display: block;
+        text-align: center;
     }`;
 
 ///////////////////////////////////// プレビュー用のHTMLを作成 /////////////////////////////////////
