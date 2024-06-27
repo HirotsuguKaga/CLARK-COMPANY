@@ -185,8 +185,14 @@ function marked(text) {
     // marked.Rendererクラスの定義
     const Renderer = function() {};
     Renderer.prototype.heading = function (text, level) { // 見出し要素(h1)にidを付与
-        const id = 'p' + text;
-        return '<h' + level + ' id="' + id + '">' + text + '</h' + level + '>';
+    console.log(text);
+        if (/^\d/.test(text)) {
+            // 行頭に数字が続く場合
+            id = text.match(/^(\d+)/)[1]; // 数字部分を抽出
+        } else {
+            id = text;
+        }
+        return '<h' + level + ' id="p' + id + '">' + text + '</h' + level + '>';
     };
     Renderer.prototype.paragraph = function (text) {
         text = text.replace(/^\\/gm, '');  //行頭のバックスラッシュを取り除く
@@ -215,7 +221,6 @@ function marked(text) {
         return '<' + type + '>' + body + '</' + type + '>';
     };
     Renderer.prototype.listitem = function (text) {
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  //strongタグを付与
         return '<li>' + text + '</li>';
     };
 
@@ -227,6 +232,8 @@ const lexer = function(src) {
     for (let line of lines) {
           // strongタグを付与する
         line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          // リンクタグを付与する
+        line = line.replace(/\[(.*?)\]/g, '<a href="#p$1" class="inline">$1</a>');
           // 二個の連続したバックスラッシュを一意なプレースホルダーに置き換える
         line = line.replace(/([^\\\\])\\\\/g, '&bsol;&bsol;');
           // 行頭や行末以外にある単独のバックスラッシュを改行タグに置き換える

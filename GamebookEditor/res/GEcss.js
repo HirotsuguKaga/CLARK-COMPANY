@@ -18,6 +18,10 @@ const css = `
         font-weight: bold;
         padding-left: 35px;
     }
+    .inline{
+        font-weight: bold;
+        padding: 0 1px;
+    }
     h1{
         font-family:;
         padding-top: 70px;
