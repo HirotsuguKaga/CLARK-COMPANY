@@ -33,22 +33,22 @@
     z=進む、x=決定、c=戻る
     <textarea id="output" readonly></textarea><br>
     <div id="consonant-buttons">
-        <button class="consonant" onclick="selectConsonant('')" id="initial">あ行</button>
-        <button class="consonant" onclick="selectConsonant('k')">か行</button>
-        <button class="consonant" onclick="selectConsonant('s')">さ行</button>
-        <button class="consonant" onclick="selectConsonant('t')">た行</button>
-        <button class="consonant" onclick="selectConsonant('n')">な行</button>
-        <button class="consonant" onclick="selectConsonant('h')">は行</button>
-        <button class="consonant" onclick="selectConsonant('m')">ま行</button>
-        <button class="consonant" onclick="selectConsonant('y')">や行</button>
-        <button class="consonant" onclick="selectConsonant('r')">ら行</button>
-        <button class="consonant" onclick="selectConsonant('w')">わ行</button>
-        <button class="consonant" onclick="selectConsonant('yy')">ゃ行</button>
-        <button class="consonant" onclick="selectConsonant('g')">が行</button>
-        <button class="consonant" onclick="selectConsonant('z')">ざ行</button>
-        <button class="consonant" onclick="selectConsonant('d')">だ行</button>
-        <button class="consonant" onclick="selectConsonant('b')">ば行</button>
-        <button class="consonant" onclick="selectConsonant('p')">ぱ行</button>
+        <button class="consonant" onclick="selectConsonant('あ行')" id="initial">あ行</button>
+        <button class="consonant" onclick="selectConsonant('か行')">か行</button>
+        <button class="consonant" onclick="selectConsonant('さ行')">さ行</button>
+        <button class="consonant" onclick="selectConsonant('た行t')">た行</button>
+        <button class="consonant" onclick="selectConsonant('な行')">な行</button>
+        <button class="consonant" onclick="selectConsonant('は行')">は行</button>
+        <button class="consonant" onclick="selectConsonant('ま行')">ま行</button>
+        <button class="consonant" onclick="selectConsonant('や行')">や行</button>
+        <button class="consonant" onclick="selectConsonant('ら行')">ら行</button>
+        <button class="consonant" onclick="selectConsonant('わ行')">わ行</button>
+        <button class="consonant" onclick="selectConsonant('ゃ行')">ゃ行</button>
+        <button class="consonant" onclick="selectConsonant('が行')">が行</button>
+        <button class="consonant" onclick="selectConsonant('ざ行')">ざ行</button>
+        <button class="consonant" onclick="selectConsonant('だ行')">だ行</button>
+        <button class="consonant" onclick="selectConsonant('ば行')">ば行</button>
+        <button class="consonant" onclick="selectConsonant('ぱ行')">ぱ行</button>
         <!-- <button class="consonant" onclick="selectConsonant('ky')">きゃ行</button>
         <button class="consonant" onclick="selectConsonant('sh')">しゃ行</button>
         <button class="consonant" onclick="selectConsonant('ch')">ちゃ行</button>
@@ -72,22 +72,22 @@
         <H3 style="text-align: right;"><a href="https://x.com/clarkandcom" style="text-decoration: none; font-weight:bold; color: dark-blue;">By Clark &amp; Company <span class="material-icons"></span></a></H3>
     <script>
         const consonantMap = {
-            '': ['あ', 'い', 'う', 'え', 'お'],
-            'k': ['か', 'き', 'く', 'け', 'こ'],
-            's': ['さ', 'し', 'す', 'せ', 'そ'],
-            't': ['た', 'ち', 'つ', 'て', 'と'],
-            'n': ['な', 'に', 'ぬ', 'ね', 'の'],
-            'h': ['は', 'ひ', 'ふ', 'へ', 'ほ'],
-            'm': ['ま', 'み', 'む', 'め', 'も'],
-            'y': ['や', 'ゆ', 'よ', '、', '。'],
-            'r': ['ら', 'り', 'る', 'れ', 'ろ'],
-            'w': ['わ', 'を', 'ん', '、', '。'],
-            'yy': ['ゃ', 'ゅ', 'ょ', '、', '。'],
-            'g': ['が', 'ぎ', 'ぐ', 'げ', 'ご'],
-            'z': ['ざ', 'じ', 'ず', 'ぜ', 'ぞ'],
-            'd': ['だ', 'ぢ', 'づ', 'で', 'ど'],
-            'b': ['ば', 'び', 'ぶ', 'べ', 'ぼ'],
-            'p': ['ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ'],
+            'あ行': ['あ', 'い', 'う', 'え', 'お'],
+            'か行': ['か', 'き', 'く', 'け', 'こ'],
+            'さ行': ['さ', 'し', 'す', 'せ', 'そ'],
+            'た行': ['た', 'ち', 'つ', 'て', 'と'],
+            'な行': ['な', 'に', 'ぬ', 'ね', 'の'],
+            'は行': ['は', 'ひ', 'ふ', 'へ', 'ほ'],
+            'ま行': ['ま', 'み', 'む', 'め', 'も'],
+            'や行': ['や', 'ゆ', 'よ', '、', '。'],
+            'ら行': ['ら', 'り', 'る', 'れ', 'ろ'],
+            'わ行': ['わ', 'を', 'ん', '、', '。'],
+            'ゃ行': ['ゃ', 'ゅ', 'ょ', '、', '。'],
+            'が行': ['が', 'ぎ', 'ぐ', 'げ', 'ご'],
+            'ざ行': ['ざ', 'じ', 'ず', 'ぜ', 'ぞ'],
+            'だ行': ['だ', 'ぢ', 'づ', 'で', 'ど'],
+            'ば行': ['ば', 'び', 'ぶ', 'べ', 'ぼ'],
+            'ぱ行': ['ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ'],
             'ky': ['きゃ', 'きぃ', 'きゅ', 'きぇ', 'きょ'],
             'sh': ['しゃ', 'しぃ', 'しゅ', 'しぇ', 'しょ'],
             'ch': ['ちゃ', 'ちぃ', 'ちゅ', 'ちぇ', 'ちょ'],
@@ -124,7 +124,7 @@
 
         function selectConsonant(consonant) {
             selectedConsonant = consonant;
-            document.getElementById('selected-consonant').innerText = `選択した子音: ${consonant ? consonant : '母音'}`;
+            document.getElementById('selected-consonant').innerText = `選択: ${consonant ? consonant : 'あ行'}`;
             updateVowelButtons(consonant);
             toggleButtonGroups();
         }
