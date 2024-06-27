@@ -192,8 +192,17 @@ function marked(text) {
         text = text.replace(/^\\/gm, '');  //行頭のバックスラッシュを取り除く
         return '<p>' + text + '</p>';
     };
-    Renderer.prototype.linktext = function (text, link) {
-        return '<p><a href="#p' + link + '">' + text + '</a></p>';///////////////<<--
+    Renderer.prototype.linktext = function (text, link) {        //リンクテキスト
+        if (text.match(/^\$(.*\.mp4).*$/)) {              //動画付きのリンクを作成
+            const matchVideo = text.replace(/\.[^/.]+$/, "");//動画ファイル名を取得
+            const video = matchVideo.match(/^\$(.+)/);;//動画ファイル名を取得
+            const videoName = video[1].trim();
+                console.log(videoName);
+            text = text.replace(/.*\.mp4/, '');
+            return `<p><a href="#p` + link + `" onclick="startVideo('` + videoName + `')">` + text + `</a></p><video id="` + videoName + `" class="originalVideo"><source src="img/` + videoName + `.mp4" type="video/mp4">お使いのブラウザは動画タグに対応していません。</video>`;    
+        } else {  
+            return '<p><a href="#p' + link + '">' + text + '</a></p>';   //通常のリンクを返す
+        }
     };
     Renderer.prototype.blockquote = function (text) {
         return '<blockquote>' + text + '</blockquote>';
@@ -238,6 +247,9 @@ const lexer = function(src) {
             tokens.push({ type: 'listitem', text: line.slice(1) });
         } else if (/^\d+\.\s/.test(line)) {
             tokens.push({ type: 'listitem', ordered: true, text: line.slice(line.indexOf('.') + 1).trim() });
+        } else if (line.match(/(.*)(\d+)+へ$/)) {                      //リンクテキスト
+            matchLink = line.match(/(.*)(\d+)+へ$/);
+            tokens.push({ type: 'linktext', link: matchLink[2],text: line });
         } else if (line.startsWith('$')) {                             //画像・動画
             // 行頭の $ の直後に拡張子が mp4 のファイル名をビデオタグに変換
             const matchVideo = line.match(/^\$(.*\.mp4)$/);
@@ -249,9 +261,6 @@ const lexer = function(src) {
             }
         } else if (line.trim() === '') {                               //スペース
             tokens.push({ type: 'space' });
-        } else if (line.match(/(.*)(\d+)+へ$/)) {                      //リンクテキスト
-            matchLink = line.match(/(.*)(\d+)+へ$/);
-            tokens.push({ type: 'linktext', link: matchLink[2],text: line });
         } else {                                                       //平文
             tokens.push({ type: 'paragraph', text: line });
         }
@@ -299,92 +308,6 @@ const parser = function(tokens, options) {
         // 解析されレンダリングされたマークダウンを返す
         return parser(lexer(text));
 }
-
-//////////////////////////////////////  共通CSS // /////////////////////////////////////////////////
-const css = `
-    body {
-        font-family:  'Noto Serif JP', 'Garamond', 'Times New Roman', serif;
-        background-color: #edd;
-        background-image: url(img/wall.webp);
-        margin: 0;
-        padding: 0;
-    }
-    #container{
-        background-color: #fffaed;
-        background-image: url(img/paper.webp);
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 15px;
-    }
-    a{
-        font-weight: bold;
-        padding-left: 35px;
-    }
-    h1{
-        font-family:;
-        padding-top: 70px;
-        text-align: center;
-    }
-    h2{
-        padding-top: 1em;
-    }
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Garamond', 'Times New Roman', serif;
-        color: #660000;
-        margin: 5px;
-        line-height: 100%;
-        padding-left: 20px;
-    }
-    p {
-        font-size: 1.2em;
-        line-height: 1.2;
-        margin: 0.5em;
-    }
-    li{
-        font-size: 1.2em;
-        padding-left: 30px;
-    }
-    ol{
-        font-size: 1.2em;
-        padding-left: 30px;
-    }
-    blockquote {
-        font-style: italic;
-        background: rgba(200,200,200,.5);
-        border-radius: 0px 10px 0px 10px;
-        margin: 0 auto;
-        width: 75%;
-    }
-    code{
-        background: none;
-        font-family:"ヒラギノ丸ゴ Pro W4","ヒラギノ丸ゴ Pro","Hiragino Maru Gothic Pro","ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro","HG丸ｺﾞｼｯｸM-PRO","HGMaruGothicMPRO";
-        font-weight: bold;
-        display: block;
-        margin: 0 auto;
-        padding: 10px;
-        width: 75%;
-    }
-    pre {
-        background-color: #f4f4f4;
-        padding: 10px;
-        overflow: auto;
-        font-family: 'Courier New', monospace;
-    }
-    img{
-        margin: auto;
-        display: block;
-        max-width: 80%;
-        max-height: 180px;
-        opacity: 0.8;
-    }
-    video{
-        max-width: 90%;
-    }
-    .video{;
-        margin: auto;
-        display: block;
-        text-align: center;
-    }`;
 
 ///////////////////////////////////// プレビュー用のHTMLを作成 /////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
@@ -452,11 +375,13 @@ downloadPDFButton.addEventListener("click", () => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>` + fileName + `</title>
-    <style>@page { size: b6; margin: 15mm; }` + css + `</style>
+    <style>@page { size: b6; margin: 15mm; }` + css + `
+    h1{page-break-before: always;}</style>
 </head>
 <body onload="window.print()">
 <div id="container">
 ${marked(markdownText)}
+    <small style="text-align:right; margin-top:200px; display:block; font-size:0.9em;">powered by Gamebook Editor by <a href="https://clark.booth.pm/" style="padding:0; font-weight:none; text-decoration:none;">Clark & Company</a> &copy;2024</small>
 </div>
 </body>
 </html>`;
@@ -514,18 +439,74 @@ downloadHTMLButton.addEventListener("click", () => {
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>` + fileName + `</title>
-    <style>` + css + `</style>
+    <style>` + css + `
+    h1{margin-top: 210px;}</style>
 </head>
 <body><div id="container">
-${marked(markdownText)}
-</div></body>
+    <div id="videoLayer">
+        <div id="videoContainer">
+            <button id="closeButton">×</button>
+            <video id="video" controls>
+                <source src="" type="video/mp4">
+                お使いのブラウザは動画タグに対応していません。
+            </video>
+        </div>
+    </div>
+    ${marked(markdownText)}
+    <small style="text-align:right; margin-top:200px; display:block; font-size:0.9em;">powered by Gamebook Editor by <a href="https://clark.booth.pm/" style="padding:0; font-weight:none; text-decoration:none;">Clark & Company</a> &copy;2024</small>
+</div>
+<script>` + innerScript + `</script></body>
 </html>`;
+
     // HTMLファイルをダウンロード
     downloadHTMLFile(htmlContent, fileName + '.html');
 });
 
 });
+/////////////////////////// 出力するHTML内に記述されるスクリプト ////////////////////////////////////////////
+const innerScript = `
+const videoLayer = document.getElementById('videoLayer');
+const videoContainer = document.getElementById('videoContainer');
+const video = document.getElementById('video');
+const closeButton = document.getElementById('closeButton');
+let currentVideo;
+
+function startVideo(videoId) {
+    if (currentVideo) {
+        currentVideo.style.display = 'block';
+    }
+    currentVideo = document.getElementById(videoId);
+    currentVideo.style.display = 'none';
+    video.src = currentVideo.querySelector('source').src;
+    videoLayer.style.visibility = 'visible';
+    videoLayer.style.opacity = '1';
+    setTimeout(() => {
+        videoContainer.style.width = '100%';
+    }, 100);
+    videoContainer.addEventListener('transitionend', () => {
+        if (videoContainer.style.width === '100%') {
+            video.play();
+        }
+    }, { once: true });
+}
+
+const closeVideo = () => {
+    video.pause();
+    videoLayer.style.opacity = '0';
+    setTimeout(() => {
+        videoLayer.style.visibility = 'hidden';
+        videoContainer.style.width = '0';
+        if (currentVideo) {
+            currentVideo.style.display = 'none';
+        }
+    }, 500);
+};
+
+closeButton.addEventListener('click', closeVideo);
+videoLayer.addEventListener('click', (event) => {
+    if (event.target === videoLayer) {
+        closeVideo();
+    }
+});`

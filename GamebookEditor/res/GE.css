@@ -37,6 +37,7 @@ body {
 	background-image: url(../img/paper.webp);
 	max-width: 600px;
 	padding: 0;
+	pointer-events: none; 
 }
 button {
 	margin-left: 10px;
@@ -47,7 +48,6 @@ button {
 	border-radius: 5px;
 	cursor: pointer;
 	font-size: 16px;
-
 	font-weight: bold;
 	border-radius: 0.3rem;
 	border-bottom: 5px solid #0686b2;
