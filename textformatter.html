@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキスト整形ツール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 0px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 1040px;
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+        }
+        .checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            line-height: 100%;
+            margin: 0;
+        }
+        .checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #matchText{
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 30px;
+        }
+        .input-pair {
+            gap: 10px;
+            margin: 8px;
+        }
+        .input-pair input[type="text"] {
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 30px;
+            width: 220px;
+        }
+        .input-pair label {
+            align-items: center;
+            gap: 5px;
+            height: 30px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .textareas {
+            display: flex;
+            gap: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 600px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+        button {
+            margin-top: 10px;
+            margin-bottom: 3px;
+            padding: 2px 5px;
+            border: none;
+            background-color: #ccd;
+            color: black;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #transformText{
+            color: white;
+            font-weight: bold;
+            padding: 8px 45px;
+            background-color: #13a;
+        }
+        #toggleRegexInfo{
+            text-align: right;
+        }
+        #regexInfo {
+            display: none;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        #regexExplanation {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+        }
+        .example {
+            background-color: #e6f7ff;
+            padding: 3px;
+            margin: 7px 0;
+            border-left: 3px solid #007bff;
+        }
+        h1 {
+            font-size: 1.6em;
+            margin: 0px;
+        }
+        h3 {
+            font-size: 1.05em;
+            margin: 0px;
+        }
+        p {
+            margin: 3px;
+        }
+        code {
+            color: #333;
+            font-weight: bold;
+        }
+        label{
+            margin: 3px;
+        }
+
+        /* CSSアコーディオン */
+.toggle {		/*ベース*/
+	display: none;
+}
+.Label {		/*タイトル*/
+	padding: 0.3em;
+	display: block;
+	color: #fff;
+	background:#019ac6;
+}
+.Label::before{		/*タイトル横の矢印*/
+	content:"";
+	width: 5px;
+	height: 5px;
+	border-top: 2px solid #fff;
+	border-right: 2px solid #fff;
+	-webkit-transform: rotate(45deg);
+	position: absolute;
+	top:calc( 50% - 3px );
+	right: 15px;
+	transform: rotate(135deg);
+}
+.Label,
+.content {
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	transition: all 0.3s;
+}
+.content {		/*本文*/
+	height: 0;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+.toggle:checked + .Label + .content {	/*開閉時*/
+	height: auto;
+	padding:10px ;
+	transition: all .3s;
+}
+.toggle:checked + .Label::before {
+	transform: rotate(-45deg) !important;
+}
+</style>
+</head>
+
+<body>
+    <div class="container">
+<h1>テキスト整形ツール</h1>
+<div class="checkboxes">
+  <div>
+   <input id="block-01" type="checkbox" class="toggle"><label class="Label" for="block-01">空白処理</label><div class="content">
+    <label><input type="checkbox" id="removeAllSpaces"> 全ての空白を削除</label>
+    <label><input type="checkbox" id="trimStart"> 行頭の空白を削除</label>
+    <label><input type="checkbox" id="trimEnd"> 行末の空白を削除</label>
+    <label><input type="checkbox" id="collapseSpaces"> 連続する空白を一つに</label>
+    <label><input type="checkbox" id="spacesToTabs">連続する空白をタブに</label>
+    <label><input type="checkbox" id="removeTabs"> 全てのタブを削除</label>
+    <label><input type="checkbox" id="tabsToSpaces">タブを<input type="number" id="spaceCount" value="4" min="1" max="9" step="1" style="width: 1.8em;">個の空白に</label></div>
+  </div>
+  <div>
+   <input id="block-02" type="checkbox" class="toggle"><label class="Label" for="block-02">改行処理</label><div class="content">
+    <label><input type="checkbox" id="newlineAfterPeriod">半角ピリオドの<br>直後の空白で改行</label>
+    <label><input type="checkbox" id="newlineBefore"><input type="text" id="newlineBeforeString" size="3" value="-">の直前で改行</label>
+    <label><input type="checkbox" id="newlineAfter"><input type="text" id="newlineAfterString" size="3" value="。">の直後で改行</label>
+    <label><input type="checkbox" id="removeNewlines">全ての改行を削除</label>
+    <label><input type="checkbox" id="removeEmptyLines">全ての空行を削除</label>
+    <label><input type="checkbox" id="mergeEmptyLines">空行の連続を一行に</label>
+    <label><input type="checkbox" id="removeExeptionalNewlines">句点と閉じ括弧以外<br>での改行を削除</label></div>
+  </div>
+  <div>
+  <input id="block-08" type="checkbox" class="toggle"><label class="Label" for="block-08">行頭行末の処理</label><div class="content">
+    <p>行頭の<input type="text" id="removeHead" name="removeHead" size="12">を削除</p>
+    <p>行末の<input type="text" id="removeEnd" name="removeEnd" size="12">を削除</p>
+    <p>行頭に<input type="text" id="prependText" name="prependText" size="12">を追加</p>
+    <p>行末に<input type="text" id="appendText" name="appendText" size="12">を追加</p></div>
+  </div>
+  <div>
+   <input id="block-03" type="checkbox" class="toggle"><label class="Label" for="block-03">全角文字の処理</label><div class="content">
+    <label><input type="checkbox" id="allToHalfWidth">英数字記号を半角に</label>
+    <label><input type="checkbox" id="toHalfWidthLetters">英字を半角に</label>
+    <label><input type="checkbox" id="toHalfWidthNumbers">数字を半角に</label>
+    <label><input type="checkbox" id="toHalfWidthSymbols">記号を半角に</label>
+    <label><input type="checkbox" id="toHankakuKana">全角カナを半角に</label>
+    <label><input type="checkbox" id="hiraganaToKatakana">平仮名をカタカナに</label>
+    <label><input type="checkbox" id="katakanaToHiragana">カタカナを平仮名に</label></div>
+  </div>
+  <div>
+    <input id="block-04" type="checkbox" class="toggle"><label class="Label" for="block-04">半角文字の処理</label><div class="content">
+    <label><input type="checkbox" id="allToFullWidth">すべて全角に　</label>
+    <label><input type="checkbox" id="toFullWidthLetters">英字を全角に</label>
+    <label><input type="checkbox" id="toFullWidthNumbers">数字を全角に</label>
+    <label><input type="checkbox" id="toFullWidthSymbols">記号を全角に</label>
+    <label><input type="checkbox" id="halfWidthKanaToFullWidth">半角カナを全角に</label>
+    <label><input type="checkbox" id="convertToUpperCase">小文字を大文字に</label>
+    <label><input type="checkbox" id="convertToLowerCase">大文字を小文字に</label></div>
+  </div>
+  <div>
+    <input id="block-05" type="checkbox" class="toggle"><label class="Label" for="block-05">半角数字の処理</label><div class="content">
+    <label><input type="checkbox" id="addCommasToNumbers">桁区切りを挿入　</label>
+    <label><input type="checkbox" id="removeCommasToNumbers">桁区切りを削除</label>
+    <label><input type="checkbox" id="englishToKanjiNumbers">数字を漢数字に</label>
+    <label><input type="checkbox" id="convertAllNumbersToRoman">ローマ数字に</label>
+    <label><input type="checkbox" id="convertToCircledNumbers">丸数字に(①-㊿)</label></div>
+  </div>
+  <div>
+  <input id="block-06" type="checkbox" class="toggle"><label class="Label" for="block-06">全角句読点の処理</label><div class="content">
+    <label><input type="checkbox" id="toTenmaru">句読点を「、。」に</label>
+    <label><input type="checkbox" id="toPirikan">句読点を「，．」に</label>
+    <label><input type="checkbox" id="toPirimaru"> 句読点を「，。」に</label></div>
+  </div>
+  <div>
+    <input id="block-07" type="checkbox" class="toggle"><label class="Label" for="block-07">文字参照</label><div class="content">
+    <label><input type="checkbox" id="toNumericCR">数値文字参照に</label>
+    <label><input type="checkbox" id="symbolsToNumericCR">半角英数字以外を<br>数値文字参照に</label>
+    <label><input type="checkbox" id="fullWidthToNumericCR">全角文字を<br>数値文字参照に</label>
+    <label><input type="checkbox" id="toCharacterEntityReferences">特殊文字を実体参照に</label>
+    <label><input type="checkbox" id="decodeNumericCR">数値文字参照を実体に</label>
+    <label><input type="checkbox" id="decodeCR">全ての参照を実体に</label></div>
+  </div>
+  <div>
+  <input id="block-09" type="checkbox" class="toggle"><label class="Label" for="block-09">置換処理</label><div class="content">
+        <div class="input-pair">
+            <input type="text" id="findText1" placeholder="置換する文字列1">を<br>
+            <input type="text" id="replaceText1" placeholder="置換後の文字列1">に
+        </div>
+        <div class="input-pair">
+            <input type="text" id="findText2" placeholder="置換する文字列2">を<br>
+            <input type="text" id="replaceText2" placeholder="置換後の文字列2">に
+        </div>
+        <div class="input-pair">
+            <input type="text" id="findText3" placeholder="置換する文字列3">を<br>
+            <input type="text" id="replaceText3" placeholder="置換後の文字列3">に
+        </div>
+        <div class="input-pair">
+            <input type="text" id="findText4" placeholder="置換する文字列4">を<br>
+            <input type="text" id="replaceText4" placeholder="置換後の文字列4">に
+        </div>
+        <div class="input-pair">
+            <input type="text" id="findText5" placeholder="置換する文字列5">を<br>
+            <input type="text" id="replaceText5" placeholder="置換後の文字列5">に</div>
+        </div>
+</div>
+</div>
+<div>
+  　<button onclick="transformText()" id="transformText">変換</button>
+　＊左のテキストエリア内を選択すると選択した範囲が変換の対象になります。<br>
+　　　<input type="checkbox" id="editMatch">正規表現で変換する範囲を指定 <input type="text" id="matchText" size="30" placeholder="条件を入力">
+            <a href="#" id="toggleRegexInfo" onclick="toggleRegexInfo()">&#x2753;正規表現とは</a></div>
+<div id="regexInfo">
+    <div id="regexExplanation">
+        <h2>正規表現とは</h2>
+        <p>正規表現（Regular Expression）は、文字列のパターンマッチングを行うための特殊な文字列です。テキストの検索や置換に使われます。</p>
+        
+        <h2>基本的な構文</h2>
+        <ul>
+            <li><code>.</code>: 任意の1文字にマッチ</li>
+            <li><code>*</code>: 直前の文字が0回以上繰り返される</li>
+            <li><code>+</code>: 直前の文字が1回以上繰り返される</li>
+            <li><code>?</code>: 直前の文字が0回または1回現れる</li>
+            <li><code>^</code>: 行の先頭にマッチ</li>
+            <li><code>$</code>: 行の末尾にマッチ</li>
+            <li><code>\d</code>: 任意の半角数字にマッチ</li>
+            <li><code>\D</code>: 半角数字以外の任意の文字にマッチ</li>
+            <li><code>\n</code>: 改行にマッチ</li>
+            <li><code>\s</code>: 空白文字にマッチ</li>
+            <li><code>\S</code>: 空白文字以外のすべてにマッチ</li>
+            <li><code>\t</code>: タブ文字にマッチ</li>
+            <li><code>\w</code>: 任意の単語にマッチ</li>
+            <li><code>[abc]</code>: a、b、cのいずれか1文字にマッチ</li>
+            <li><code>[^abc]</code>: a、b、c以外の任意の1文字にマッチ</li>
+            <li><code>(abc)</code>: abcにマッチ</li>
+            <li><code>a|b</code>: aまたはbにマッチ</li>
+            <li><code>\</code>:エスケープ文字。直後の文字列を通常の文字として扱う</li>
+        </ul>
+
+        <h2>例</h2>
+        <div class="example">
+            <h3>例1: 任意の数字にマッチ</h3>
+            <p><code>\d</code> は任意の数字にマッチします。　例: <code>\d\d\d</code>は<code>a1b234c56d</code>の中の<code>234</code> にマッチします。</p>
+        </div>
+        <div class="example">
+            <h3>例2: 任意の単語にマッチ</h3>
+            <p><code>\w+</code> は任意の単語にマッチします。　例: <code>\w+</code>は<code>hello</code> は にマッチします。</p>
+        </div>
+        <div class="example">
+            <h3>例2: 文字と数字の組み合わせにマッチ</h3>
+            <p><code>\d</code> は任意の半角数字にマッチします。　例: <code>第\d章</code> は <code>第1章</code>や<code>第2章</code>にマッチし、<code>第一章</code>はマッチしません。</p>
+        </div>
+        <div class="example">
+            <h3>例3: 行の先頭にマッチ</h3>
+            <p><code>^</code> は行の先頭を表します。、<code>abc</code> にマッチします。　例: <code>^\d+</code> は行の先頭から続く1文字以上の半角数字にマッチします。</p>
+        </div>
+        <div class="example">
+            <h3>例4: 特定の文字を含む行</h3>
+            <p><code>.*</code> は任意の文字の一文字以上の繰り返し、<code>^</code>は行頭、<code>$</code>は行末を表します。　例: <code>^.*＠.*$</code> は <code>＠</code>を含む全ての行にマッチします。</p>
+        </div>
+        <div class="example">
+            <h3>例5: ドットを文字としてマッチ</h3>
+            <p><code>\</code> は直後の文字をエスケープし、通常の文字として扱います。　例: <code>example\.com</code>は<code>example.com</code>にマッチします。</p>
+        </div>
+    </div>
+</div>
+    <div class="button-container">
+        <button onclick="loadFile()">ファイルを読み込む</button>　　
+        <button onclick="copyText()">&#x21B6;左へコピー</button>
+        <button onclick="copyToClipboard()">コピー</button>
+        <button onclick="saveToFile()">ファイルに保存</button>
+    </div>
+    <div class="textareas">
+        <textarea id="inputText" placeholder="ここにテキストを入力してください"></textarea>
+        <textarea id="outputText" readonly placeholder="変換後のテキストがここに表示されます"></textarea>
+    </div>
+    <H5 style="text-align: right;"><a href="https://x.com/clarkandcom" style="text-decoration: none; font-weight:bold; color: BLUE;">By Clark &amp; Company</a></H5>
+</div>
+
+<script>//////////////////////////////////////////////////////////////////////////////////////////////
+    // テキストエリアのタブキー押下を検出し、タブを挿入する関数
+function enableTabInTextarea(textarea) {
+    textarea.addEventListener('keydown', function(event) {
+        if (event.key === 'Tab') {
+            event.preventDefault();  // デフォルトのタブ移動を防ぐ
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+        // テキストエリアの値を更新
+            this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+        // カーソルの位置をタブ挿入後の位置に設定
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    });
+}
+   // すべてのテキストエリアにタブ挿入機能を適用
+document.querySelectorAll('textarea').forEach(enableTabInTextarea);
+
+   // 正規表現の説明ボックスを表示/非表示にする
+function toggleRegexInfo() {
+    const regexInfo = document.getElementById('regexInfo');
+    const toggleLink = document.getElementById('toggleRegexInfo');
+    if (regexInfo.style.display === 'none' || regexInfo.style.display === '') {
+        regexInfo.style.display = 'block';
+        toggleLink.textContent = '正規表現の説明を閉じる';
+    } else {
+        regexInfo.style.display = 'none';
+        toggleLink.textContent = '正規表現とは';
+    }
+}
+
+  // 英数字から漢数字への変換マップ
+const kanjiNumbers = {'0': '零', '1': '一', '2': '二', '3': '三', '4': '四', '5': '五', '6': '六', '7': '七', '8': '八', '9': '九'};
+
+  // 数字を漢数字に変換する関数
+function numberToKanji(num) {
+    const units = ['', '十', '百', '千'];
+    const largeUnits = ['', '万', '億', '兆', '京', '垓', '&#153457;', '穣', '溝', '澗', '正', '載', '極', '恒河沙', '阿僧祇', '那由他', '不可思議', '無量大数'];
+    let strNum = String(num);
+    let result = '';
+    let largeUnitIndex = 0;
+
+    while (strNum.length > 0) {
+        let chunk = strNum.slice(-4); // 4桁ごとに処理
+        strNum = strNum.slice(0, -4);
+        
+        let chunkResult = '';
+        for (let i = 0; i < chunk.length; i++) {
+            let digit = chunk[chunk.length - 1 - i];
+            if (digit !== '0') {
+                chunkResult = kanjiNumbers[digit] + units[i] + chunkResult;
+            } else if (i === 0 || (chunk.length > 1 && chunk[chunk.length - 2 - i] !== '0')) {
+                chunkResult = kanjiNumbers[digit] + chunkResult;
+            }
+        }
+
+        if (chunkResult !== '') {
+            result = chunkResult + largeUnits[largeUnitIndex] + result;
+        }
+        largeUnitIndex++;
+    }
+    result = result.replace(/一十/g, '十');
+    result = result.replace(/一百/g, '百');
+    result = result.replace(/^一千/g, '千');
+    if (result == '零'){
+        return result;
+    }else{
+        return result.replace(/零+/g, '').replace(/零$/g, '');
+    }
+}
+
+  // 数字をローマ数字に変換する関数
+function toRoman(num) {
+    const romanNumerals = [
+        { value: 1000, numeral: 'M' },
+        { value: 900, numeral: 'CM' },
+        { value: 500, numeral: 'D' },
+        { value: 400, numeral: 'CD' },
+        { value: 100, numeral: 'C' },
+        { value: 90, numeral: 'XC' },
+        { value: 50, numeral: 'L' },
+        { value: 40, numeral: 'XL' },
+        { value: 10, numeral: 'X' },
+        { value: 9, numeral: 'IX' },
+        { value: 5, numeral: 'V' },
+        { value: 4, numeral: 'IV' },
+        { value: 1, numeral: 'I' }
+    ];
+    let result = '';
+    for (const { value, numeral } of romanNumerals) {
+        while (num >= value) {
+            result += numeral;
+            num -= value;
+        }
+    }
+    return result;
+}
+
+  // 全角カタカナを半角カタカナに変換するマップ
+const fullWidthKanaToHalfWidthMap = {
+        'ヴ': 'ｳﾞ',
+        'ガ': 'ｶﾞ', 'ギ': 'ｷﾞ', 'グ': 'ｸﾞ', 'ゲ': 'ｹﾞ', 'ゴ': 'ｺﾞ',
+        'ザ': 'ｻﾞ', 'ジ': 'ｼﾞ', 'ズ': 'ｽﾞ', 'ゼ': 'ｾﾞ', 'ゾ': 'ｿﾞ',
+        'ダ': 'ﾀﾞ', 'ヂ': 'ﾁﾞ', 'ヅ': 'ﾂﾞ', 'デ': 'ﾃﾞ', 'ド': 'ﾄﾞ',
+        'バ': 'ﾊﾞ', 'ビ': 'ﾋﾞ', 'ブ': 'ﾌﾞ', 'ベ': 'ﾍﾞ', 'ボ': 'ﾎﾞ',
+        'パ': 'ﾊﾟ', 'ピ': 'ﾋﾟ', 'プ': 'ﾌﾟ', 'ペ': 'ﾍﾟ', 'ポ': 'ﾎﾟ',
+        'ア': 'ｱ', 'イ': 'ｲ', 'ウ': 'ｳ', 'エ': 'ｴ', 'オ': 'ｵ',
+        'カ': 'ｶ', 'キ': 'ｷ', 'ク': 'ｸ', 'ケ': 'ｹ', 'コ': 'ｺ',
+        'サ': 'ｻ', 'シ': 'ｼ', 'ス': 'ｽ', 'セ': 'ｾ', 'ソ': 'ｿ',
+        'タ': 'ﾀ', 'チ': 'ﾁ', 'ツ': 'ﾂ', 'テ': 'ﾃ', 'ト': 'ﾄ',
+        'ナ': 'ﾅ', 'ニ': 'ﾆ', 'ヌ': 'ﾇ', 'ネ': 'ﾈ', 'ノ': 'ﾉ',
+        'ハ': 'ﾊ', 'ヒ': 'ﾋ', 'フ': 'ﾌ', 'ヘ': 'ﾍ', 'ホ': 'ﾎ',
+        'マ': 'ﾏ', 'ミ': 'ﾐ', 'ム': 'ﾑ', 'メ': 'ﾒ', 'モ': 'ﾓ',
+        'ヤ': 'ﾔ', 'ユ': 'ﾕ', 'ヨ': 'ﾖ',
+        'ラ': 'ﾗ', 'リ': 'ﾘ', 'ル': 'ﾙ', 'レ': 'ﾚ', 'ロ': 'ﾛ',
+        'ワ': 'ﾜ', 'ヲ': 'ｦ', 'ン': 'ﾝ',
+        'ァ': 'ｧ', 'ィ': 'ｨ', 'ゥ': 'ｩ', 'ェ': 'ｪ', 'ォ': 'ｫ',
+        'ャ': 'ｬ', 'ュ': 'ｭ', 'ョ': 'ｮ', 'ッ': 'ｯ', 'ー': 'ｰ',
+        '「': '｢', '」': '｣', '、': '､', '・': '･'
+};
+
+  // 半角カタカナを全角カタカナに変換するマップを生成
+const kanaMap = {};
+for (const [fullWidth, halfWidth] of Object.entries(fullWidthKanaToHalfWidthMap)) {
+    kanaMap[halfWidth] = fullWidth;
+}
+
+  // 半角カタカナを全角カタカナに変換する関数
+function hankakuKatakanaToZenkaku(str) {
+    var reg = new RegExp('(' + Object.keys(kanaMap).join('|') + ')', 'g');
+    return str.replace(reg, function (match) {
+       return kanaMap[match];
+    }).replace(/ﾞ/g, '゛').replace(/ﾟ/g, '゜');
+}
+
+  // 文字列の直前で改行する関数
+function addNewlineBeforeString(str, target) {
+    const regex = new RegExp(`(${target})`, 'g');
+    return str.replace(regex, '\n$1');
+}
+
+  // 文字列の直後で改行する関数
+function addNewlineAfterString(str, target) {
+   const regex = new RegExp(`(${target})`, 'g');
+   return str.replace(regex, '$1\n');
+}
+
+  ////////////////////////////// 変換機能のメイン関数 /////////////////////////////////
+function convert(str){
+    //// 各種チェックボックスのオプションに基づき、テキストを変換 ////
+    //　空白処理　//
+    // 行頭の空白を取り除く
+    if (document.getElementById('trimStart').checked) {
+        str = str.replace(/^\s+/gm, '');
+    }
+
+    // 行末の空白を取り除く
+    if (document.getElementById('trimEnd').checked) {
+        str = str.replace(/\s+$/gm, '');
+    }
+
+    // 全ての空白を取り除く
+    if (document.getElementById('removeAllSpaces').checked) {
+        str = str.replace(/\s+/g, '');
+    }
+
+    // 連続する空白を一つに変換
+    if (document.getElementById('collapseSpaces').checked) {
+        str = str.replace(/\s+/g, ' ');
+    }
+
+    // タブを取り除く
+    if (document.getElementById('removeTabs').checked) {
+        str = str.replace(/\t/g, '');
+    }
+
+    // タブを指定された数の空白に変換
+    if (document.getElementById('tabsToSpaces').checked) {
+        const spaceCount = parseInt(document.getElementById('spaceCount').value, 10);
+        const spaces = ' '.repeat(spaceCount);
+        str = str.replace(/\t/g, spaces);
+    }
+
+    //　改行処理　//
+    // ピリオド直後の空白を改行に変換
+    if (document.getElementById('newlineAfterPeriod').checked) {
+        str = str.replace(/\. /g, '.\n');
+    }
+
+    // 文字列の直前で改行
+    if (document.getElementById('newlineBefore').checked) {
+        const newlineBeforeString = document.getElementById('newlineBeforeString').value;
+        str = addNewlineBeforeString(str, newlineBeforeString);
+    }
+
+    // 文字列の直後で改行
+    if (document.getElementById('newlineAfter').checked) {
+        const newlineAfterString = document.getElementById('newlineAfterString').value;
+        str = addNewlineAfterString(str, newlineAfterString);
+    }
+
+    // 全ての改行を取り除く
+    if (document.getElementById('removeNewlines').checked) {
+        str = str.replace(/\r?\n|\r/g, '');
+    }
+
+    // 空白行を取り除く
+    if (document.getElementById('removeEmptyLines').checked) {
+        str = str.replace(/^\s*[\r\n]/gm, '');
+    }
+
+    // 連続した空白をタブに変換
+    if (document.getElementById('spacesToTabs').checked) {
+        str = str.replace(/  +/g, '\t'); // 2つ以上の空白をタブに変換
+    }
+
+    // 連続した空白行を一行にする
+    if (document.getElementById('mergeEmptyLines').checked) {
+        str = str.replace(/(\n\s*\n)+/g, '\n\n');
+    }
+
+    // 句点や閉じ括弧以外での改行を削除
+    if (document.getElementById('removeExeptionalNewlines').checked) {
+        str = str.replace(/([^\n。、．.）」』】｝〗》】\>\»\⁆\〙\]\}\)\>])\n/g, "$1");
+    }
+
+    // 全角文字の処理 //
+    // 全角数字を半角に変換
+    if (document.getElementById('toHalfWidthNumbers').checked) {
+        str = str.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+    }
+
+    // 全角英字を半角に変換
+    if (document.getElementById('toHalfWidthLetters').checked) {
+        str = str.replace(/[Ａ-Ｚａ-ｚ]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+    }
+
+    // 全角記号を半角に変換
+    if (document.getElementById('toHalfWidthSymbols').checked) {
+        const symbolsMap = {
+            '！': '!', '＂': '"', '＃': '#', '＄': '$', '％': '%', '＆': '&', '＇': '\'',
+            '（': '(', '）': ')', '＊': '*', '＋': '+', '，': ',', '－': '-', '．': '.',
+            '／': '/', '：': ':', '；': ';', '＜': '<', '＝': '=', '＞': '>', '？': '?',
+            '＠': '@', '［': '[', '＼': '\\', '］': ']', '＾': '^', '＿': '_', '｀': '`',
+            '｛': '{', '｜': '|', '｝': '}', '～': '~'
+        };
+        str = str.replace(/[！-～]/g, s => symbolsMap[s] || s);
+    }
+
+    // 半角数字を全角に変換
+    if (document.getElementById('toFullWidthNumbers').checked) {
+        str = str.replace(/[0-9]/g, s => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+    }
+
+    // 半角英字を全角に変換
+    if (document.getElementById('toFullWidthLetters').checked) {
+        str = str.replace(/[A-Za-z]/g, s => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+    }
+
+    // 半角記号を全角に変換
+    if (document.getElementById('toFullWidthSymbols').checked) {
+        const symbolsMap = {
+            '!': '！', '"': '＂', '#': '＃', '$': '＄', '%': '％', '&': '＆', '\'': '＇',
+            '(': '（', ')': '）', '*': '＊', '+': '＋', ',': '，', '-': '－', '.': '．',
+            '/': '／', ':': '：', ';': '；', '<': '＜', '=': '＝', '>': '＞', '?': '？',
+            '@': '＠', '[': '［', '\\': '＼', ']': '］', '^': '＾', '_': '＿', '`': '｀',
+            '{': '｛', '|': '｜', '}': '｝', '~': '～'
+        };
+        str = str.replace(/[!-~]/g, s => symbolsMap[s] || s);
+    }
+
+    // 全ての全角英数字記号を半角に変換
+    if (document.getElementById('allToHalfWidth').checked) {
+        str = str.replace(/[！-～]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+    }
+
+    // 全ての半角英数字記号を全角に変換
+    if (document.getElementById('allToFullWidth').checked) {
+        str = str.replace(/[!-~]/g, s => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+    }
+
+    // 全角カタカナを半角に
+    if (document.getElementById('toHankakuKana').checked) {
+        str = str.replace(/[\u30A0-\u30FF]/g, function(match) {
+            return fullWidthKanaToHalfWidthMap[match] || match;
+        });
+    }
+
+    // 全角カタカナを平仮名に
+    if (document.getElementById('katakanaToHiragana').checked) {
+        str = str.replace(/[\u30a1-\u30f6]/g, function(s){
+            return String.fromCharCode(s.charCodeAt(0) - 0x60);
+        });;
+    }
+
+    // 全角平仮名をカタカナに
+    if (document.getElementById('hiraganaToKatakana').checked) {
+        str = str.replace(/[\u3041-\u3096]/g, function(s){
+            return String.fromCharCode(s.charCodeAt(0) + 0x60);
+        });
+    }
+
+    // 数字に桁区切りを挿入
+    if (document.getElementById('addCommasToNumbers').checked) {
+        str = str.replace(/\d+(\.\d+)?/g, function(match) {
+            // 整数部分と小数部分に分割
+            let parts = match.split('.');
+            // 整数部分にカンマを挿入
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            // 小数部分があれば再結合
+            return parts.join('.');
+        });
+    }
+
+    // 数字の桁区切りを削除
+    if (document.getElementById('removeCommasToNumbers').checked) {
+        str = str.replace(/\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b/g, function(match) {
+            return match.replace(/,/g, '');
+        });
+    }
+
+    // 数字を漢数字に変換
+    if (document.getElementById('englishToKanjiNumbers').checked) {
+        str = str.replace(/\d+/g, function(match) {
+            return numberToKanji(match);
+        });
+    }
+
+    // 数字をローマ数字に変換
+    if (document.getElementById('convertAllNumbersToRoman').checked) {
+        str = str.replace(/\d+/g, match => toRoman(parseInt(match, 10)));
+    }
+
+    // 数字を丸数字に変換
+    if (document.getElementById('convertToCircledNumbers').checked) {
+        const circledNumbers = {
+'50': '㊿', '49': '㊾', '48': '㊽', '47': '㊼', '46': '㊻', '45': '㊺', '44': '㊹', '43': '㊸', '42': '㊷', '41': '㊶',
+'40': '㊵', '39': '㊴', '38': '㊳', '37': '㊲', '36': '㊱', '35': '㉟', '34': '㉞', '33': '㉝', '32': '㉜', '31': '㉛',
+'30': '㉚', '29': '㉙', '28': '㉘', '27': '㉗', '26': '㉖', '25': '㉕', '24': '㉔', '23': '㉓', '22': '㉒', '21': '㉑',
+'20': '⑳', '19': '⑲', '18': '⑱', '17': '⑰', '16': '⑯', '15': '⑮', '14': '⑭', '13': '⑬', '12': '⑫', '11': '⑪',
+'10': '⑩', '9': '⑨', '8': '⑧', '7': '⑦', '6': '⑥', '5': '⑤', '4': '④', '3': '③', '2': '②', '1': '①', '0': '⓪'
+        };
+        return str.replace(/\d{1,2}/g, match => {
+            return circledNumbers[match] || match;
+        });
+        str = str.replace(/\d{1,2}/g, match => {
+            return circledNumbers[match] || match;
+        });
+    }
+
+    // 半角カナを全角に変換
+    if (document.getElementById('halfWidthKanaToFullWidth').checked) {
+        var reg = new RegExp('(' + Object.keys(kanaMap).join('|') + ')', 'g');
+        str =  str.replace(reg, function (match) {
+            return kanaMap[match];
+        }).replace(/ﾞ/g, '゛').replace(/ﾟ/g, '゜');
+    }
+
+    // 小文字を大文字に変換
+    if (document.getElementById('convertToUpperCase').checked) {
+        str = str.split('').map(char => {
+        // 小文字を大文字に変換
+        return char >= 'a' && char <= 'z' ? char.toUpperCase() : char;
+    }).join('');
+    }
+
+    // 大文字を小文字に変換
+    if (document.getElementById('convertToLowerCase').checked) {
+        str = str.split('').map(char => {
+        // 大文字を小文字に変換
+            return char >= 'A' && char <= 'Z' ? char.toLowerCase() : char;
+        }).join('');
+    }
+
+    // 「、。」を「，.」に変換
+    if (document.getElementById('toPirikan').checked) {
+        const conversions = {'。': '．', '、': '，'};
+        str = str.replace(/[。、]/g, match => conversions[match] || match);
+    }
+
+    // 「，．」を「、。」に変換
+    if (document.getElementById('toTenmaru').checked) {
+        const conversions = {'．': '。', '，': '、'};
+        str = str.replace(/[．，]/g, match => conversions[match] || match);
+    }
+
+    // 句読点を「，。」に変換
+    if (document.getElementById('toPirimaru').checked) {
+        const conversions = {'．': '。', '、': '，'};
+        str = str.replace(/[．、]/g, match => conversions[match] || match);
+    }
+
+    // 全て数値文字参照に変換
+    if (document.getElementById('toNumericCR').checked) {
+        str = str.split('').map(char => {
+            return `&#${char.charCodeAt(0)};`;
+        }).join('');
+    }
+
+    // 半角英数字以外を数値文字参照に変換
+    if (document.getElementById('symbolsToNumericCR').checked) {
+          // 半角の英数字と句読点の正規表現パターン
+        const regex = /[A-Za-z0-9.,!?;:()\[\]{}<>]/;
+        str = str.split('').map(char => {
+            // 半角の英数字と句読点はそのまま、それ以外の記号は数値文字参照に変換
+            return regex.test(char) ? char : `&#${char.charCodeAt(0)};`;
+        }).join('');
+    }
+
+    // 全角文字を数値文字参照に変換
+    if (document.getElementById('fullWidthToNumericCR').checked) {
+        str = str.split('').map(char => {
+            const code = char.charCodeAt(0);
+            // 全角文字の範囲（ASCII以外の文字）
+            return (code > 127) ? `&#${code};` : char;
+        }).join('');
+    }
+
+    // 参照に変換
+    if (document.getElementById('toCharacterEntityReferences').checked) {
+        const entities = {        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&apos;',
+        '©': '&copy;',
+        '®': '&reg;',
+        '™': '&trade;',
+        '€': '&euro;',
+        '£': '&pound;',
+        '¥': '&yen;',
+        '¢': '&cent;',
+        '§': '&sect;',
+        '¶': '&para;',
+        '÷': '&divide;',
+        '×': '&times;',
+        '±': '&plusmn;',
+        'µ': '&micro;',
+        '°': '&deg;',
+        '¹': '&sup1;',
+        '²': '&sup2;',
+        '³': '&sup3;',
+        '¼': '&frac14;',
+        '½': '&frac12;',
+        '¾': '&frac34;',
+        'À': '&Agrave;',
+        'Á': '&Aacute;',
+        'Â': '&Acirc;',
+        'Ã': '&Atilde;',
+        'Ä': '&Auml;',
+        'Å': '&Aring;',
+        'Æ': '&AElig;',
+        'Ç': '&Ccedil;',
+        'È': '&Egrave;',
+        'É': '&Eacute;',
+        'Ê': '&Ecirc;',
+        'Ë': '&Euml;',
+        'Ì': '&Igrave;',
+        'Í': '&Iacute;',
+        'Î': '&Icirc;',
+        'Ï': '&Iuml;',
+        'Ð': '&ETH;',
+        'Ñ': '&Ntilde;',
+        'Ò': '&Ograve;',
+        'Ó': '&Oacute;',
+        'Ô': '&Ocirc;',
+        'Õ': '&Otilde;',
+        'Ö': '&Ouml;',
+        'Ø': '&Oslash;',
+        'Ù': '&Ugrave;',
+        'Ú': '&Uacute;',
+        'Û': '&Ucirc;',
+        'Ü': '&Uuml;',
+        'Ý': '&Yacute;',
+        'Þ': '&THORN;',
+        'ß': '&szlig;',
+        'à': '&agrave;',
+        'á': '&aacute;',
+        'â': '&acirc;',
+        'ã': '&atilde;',
+        'ä': '&auml;',
+        'å': '&aring;',
+        'æ': '&aelig;',
+        'ç': '&ccedil;',
+        'è': '&egrave;',
+        'é': '&eacute;',
+        'ê': '&ecirc;',
+        'ë': '&euml;',
+        'ì': '&igrave;',
+        'í': '&iacute;',
+        'î': '&icirc;',
+        'ï': '&iuml;',
+        'ð': '&eth;',
+        'ñ': '&ntilde;',
+        'ò': '&ograve;',
+        'ó': '&oacute;',
+        'ô': '&ocirc;',
+        'õ': '&otilde;',
+        'ö': '&ouml;',
+        'ø': '&oslash;',
+        'ù': '&ugrave;',
+        'ú': '&uacute;',
+        'û': '&ucirc;',
+        'ü': '&uuml;',
+        'ý': '&yacute;',
+        'þ': '&thorn;',
+        'ÿ': '&yuml;'};
+        str = str.replace(/[&<>"'cR??￡\￠§¶÷×±μ°123???AAAAAAACEEEEIIIIDNOOOOOOUUUUYTsaaaaaaaceeeeiiiidnoooooouuuuyty]/g, match => {
+            return entities[match] || match;
+        });
+    }
+
+    // 全ての数値文字参照を実体に変換
+    if (document.getElementById('decodeNumericCR').checked) {
+        str = str.replace(/&#(\d+);/g, (match, dec) => {
+            return String.fromCharCode(dec);
+        });
+    }
+
+    // 全ての文字参照に実体に変換
+    if (document.getElementById('decodeCR').checked) {
+        const textarea = document.createElement('textarea');
+        // 文字列をtextareaに設定
+        textarea.innerHTML = str;
+        // デコードされた文字列を取得
+        str = textarea.value;
+    }
+
+    // 行頭の文字列を削除
+    const removeHead = document.getElementById('removeHead').value;
+    if (removeHead) {
+        const regexHead = new RegExp('^' + removeHead, 'gm');
+        str = str.replace(regexHead, '');
+    }
+
+    // 行末の文字列を削除
+    const removeEnd = document.getElementById('removeEnd').value;
+    if (removeEnd) {
+        const regexEnd = new RegExp(removeEnd + '$', 'gm');
+        str = str.replace(regexEnd, '');
+    }
+
+    // 行頭に文字列を追加
+    const prependText = document.getElementById('prependText').value;
+    if (prependText) {
+        str = str.split('\n').map(line => prependText + line).join('\n');
+    }
+
+    // 行末に文字列を追加
+    const appendText = document.getElementById('appendText').value;
+    if (appendText) {
+        str = str.split('\n').map(line => line + appendText).join('\n');
+    }
+
+    // 置換機能
+    const findTexts = [document.getElementById('findText1').value, document.getElementById('findText2').value, document.getElementById('findText3').value];
+    const replaceTexts = [document.getElementById('replaceText1').value, document.getElementById('replaceText2').value, document.getElementById('replaceText3').value];
+    for (let i = 0; i < 5; i++) {
+        if (findTexts[i]) {
+            let findText = findTexts[i];
+            findText = new RegExp(findTexts[i].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+            str = str.replace(findText, replaceTexts[i]);
+        }
+    }
+
+
+    return str;
+}
+
+
+function transformText() {  //////////////////////////////////////////////////////////////////////////////
+    const inputText = document.getElementById('inputText');
+    let text = inputText.value;
+
+    // テキストエリアの選択範囲を取得
+    const selectionStart = inputText.selectionStart;
+    const selectionEnd = inputText.selectionEnd;
+
+    // 選択されたテキストを取得、何も選択されていない場合は全体を対象とする
+    let selectedText = text.slice(selectionStart, selectionEnd);
+    let fullTextSelected = (selectionStart === selectionEnd);
+    if (fullTextSelected) {
+        selectedText = text;
+    }
+    
+    if(document.getElementById('editMatch').checked){
+        const regex = new RegExp(document.getElementById('matchText').value, 'gm');
+        selectedText = selectedText.replace(regex, (match) => {
+            return convert(match);
+        });
+    }else{
+        selectedText = convert(selectedText);  ////////////////////////////////////
+    }
+    ////// 選択範囲が全体の場合は全体を更新、部分選択の場合は選択部分のみ更新 //////
+    if (fullTextSelected) {
+        text = selectedText;
+    } else {
+        text = text.slice(0, selectionStart) + selectedText + text.slice(selectionEnd);
+    }
+
+    // 変換後のテキストを出力エリアに設定
+    document.getElementById('outputText').value = text;
+}
+        // テキストエリア間のコピー機能
+function copyText() {
+    const outputText = document.getElementById('outputText').value;
+    document.getElementById('inputText').value = outputText;
+}
+
+        // クリップボードにコピー機能
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText').value;
+            navigator.clipboard.writeText(outputText).then(() => {
+                alert('クリップボードにコピーしました');
+            });
+        }
+
+        // ファイル読み込み機能
+        function loadFile() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.txt';
+            fileInput.onchange = () => {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = () => {
+                    document.getElementById('inputText').value = reader.result;
+                };
+                reader.readAsText(file);
+            };
+            fileInput.click();
+        }
+
+        // ファイル保存機能
+        function saveToFile() {
+            const text = document.getElementById('outputText').value;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'output.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
