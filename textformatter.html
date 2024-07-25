@@ -322,7 +322,7 @@
         <h2>例</h2>
         <div class="example">
             <h3>例1: 任意の数字にマッチ</h3>
-            <p><code>\d</code> は任意の数字にマッチします。　例: <code>\d\d\d</code>は<code>a1b234c56d</code>の中の<code>234</code> にマッチします。</p>
+            <p><code>\d</code> は任意の数字一文字を示します。　例: <code>\d\d\d</code>は「<code>a1b234c56d</code>」の中では<code>234</code> にマッチします。</p>
         </div>
         <div class="example">
             <h3>例2: 任意の単語にマッチ</h3>
@@ -334,11 +334,11 @@
         </div>
         <div class="example">
             <h3>例3: 行の先頭にマッチ</h3>
-            <p><code>^</code> は行の先頭を表します。、<code>abc</code> にマッチします。　例: <code>^\d+</code> は行の先頭から続く1文字以上の半角数字にマッチします。</p>
+            <p><code>^</code> は行の先頭を表します。、<code>abc</code> にマッチします。　例: <code>^\d+</code> は行頭から続く半角数字の文字列にマッチします。</p>
         </div>
         <div class="example">
             <h3>例4: 特定の文字を含む行</h3>
-            <p><code>.*</code> は任意の文字の一文字以上の繰り返し、<code>^</code>は行頭、<code>$</code>は行末を表します。　例: <code>^.*＠.*$</code> は <code>＠</code>を含む全ての行にマッチします。</p>
+            <p><code>.*</code> は任意の文字の0回以上の繰り返し、<code>^</code>は行頭、<code>$</code>は行末を表します。　例: <code>^.*＠.*$</code> は <code>＠</code>を含む全ての行にマッチします。</p>
         </div>
         <div class="example">
             <h3>例5: ドットを文字としてマッチ</h3>
