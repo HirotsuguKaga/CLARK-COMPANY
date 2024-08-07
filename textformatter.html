@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+<!-- テキスト整形ツール　ver.0.11　2024/08/07　by Clark & Company -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>テキスト整形ツール</title>
+    <title>テキスト整形ツール - Clark & Company</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -84,7 +85,7 @@
         }
         button {
             margin-top: 10px;
-            margin-bottom: 3px;
+            margin: 3px;
             padding: 2px 5px;
             border: none;
             background-color: #ccd;
@@ -95,12 +96,16 @@
         }
         button:hover {
             background-color: #0056b3;
+            color: #fff;
         }
         #transformText{
             color: white;
             font-weight: bold;
             padding: 8px 45px;
             background-color: #13a;
+        }
+        #transformText:hover {
+            background-color: #0a4;
         }
         #toggleRegexInfo{
             text-align: right;
@@ -186,12 +191,50 @@
 .toggle:checked + .Label::before {
 	transform: rotate(-45deg) !important;
 }
+
+        /* CSSツールチップ */
+.tooltip{
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+}
+.tooltip p{
+    margin:0;
+    padding:0;
+}
+.description {
+    display: none;
+    position: absolute;
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.4em;
+    color: #fff;
+    border-radius: 5px;
+    background: #016;
+    width: 180px;
+    z-index: 2;
+}
+.description:before {
+    content: "";
+    position: absolute;
+    top: -24px;
+    top: 100%;
+    left: 50%;
+    border: 15px solid transparent;
+    border-top: 15px solid #000;
+    margin-left: -15px;
+}
+.tooltip:hover .description{
+    display: inline-block;
+    top: -68px;
+    left: -10px;
+}
 </style>
 </head>
 
 <body>
     <div class="container">
-<h1>テキスト整形ツール</h1>
+<h1>　テキスト整形ツール Ver.0.11</h1>
 <div class="checkboxes">
   <div>
    <input id="block-01" type="checkbox" class="toggle"><label class="Label" for="block-01">空白処理</label><div class="content">
@@ -218,7 +261,11 @@
     <p>行頭の<input type="text" id="removeHead" name="removeHead" size="12">を削除</p>
     <p>行末の<input type="text" id="removeEnd" name="removeEnd" size="12">を削除</p>
     <p>行頭に<input type="text" id="prependText" name="prependText" size="12">を追加</p>
-    <p>行末に<input type="text" id="appendText" name="appendText" size="12">を追加</p></div>
+    <p>行末に<input type="text" id="appendText" name="appendText" size="12">を追加</p>
+    <div class="tooltip"><input type="checkbox" id="indentZenkaku">全角字下げ <input type="number" id="indentCountZenkaku" value="1" min="1" max="9" step="1" style="width: 1.8em;">文字
+    <div class="description">括弧や行頭記号以外の行頭を指定した字数でインデント</div></div><br>
+    <div class="tooltip"><input type="checkbox" id="indentHankaku">半角字下げ <input type="number" id="indentCountHankaku" value="5" min="1" max="12" step="1" style="width: 2.5em;">文字
+    <div class="description">括弧や行頭記号以外の行頭を指定した字数でインデント</div></div><br><br></div>
   </div>
   <div>
    <input id="block-03" type="checkbox" class="toggle"><label class="Label" for="block-03">全角文字の処理</label><div class="content">
@@ -289,9 +336,10 @@
 </div>
 <div>
   　<button onclick="transformText()" id="transformText">変換</button>
-　＊左のテキストエリア内を選択すると選択した範囲が変換の対象になります。<br>
-　　　<input type="checkbox" id="editMatch">正規表現で変換する範囲を指定 <input type="text" id="matchText" size="30" placeholder="条件を入力">
-            <a href="#" id="toggleRegexInfo" onclick="toggleRegexInfo()">&#x2753;正規表現とは</a></div>
+　＊左のテキストエリア内を選択すると選択範囲だけを変換します。<br>
+<div  class="tooltip">　　　<input type="checkbox" id="editMatch">正規表現で変換する範囲を指定 <input type="text" id="matchText" size="30" placeholder="条件を入力">
+      <a href="#" id="toggleRegexInfo" onclick="toggleRegexInfo()">&#x2753;正規表現とは</a>
+      <div class="description">各行の条件にマッチした文字列が変換の対象になります</div></div>
 <div id="regexInfo">
     <div id="regexExplanation">
         <h2>正規表現とは</h2>
@@ -350,13 +398,13 @@
         <button onclick="loadFile()">ファイルを読み込む</button>　　
         <button onclick="copyText()">&#x21B6;左へコピー</button>
         <button onclick="copyToClipboard()">コピー</button>
-        <button onclick="saveToFile()">ファイルに保存</button>
+        <button id="saveToFile">ファイルに保存</button>
     </div>
     <div class="textareas">
         <textarea id="inputText" placeholder="ここにテキストを入力してください"></textarea>
         <textarea id="outputText" readonly placeholder="変換後のテキストがここに表示されます"></textarea>
     </div>
-    <H5 style="text-align: right;"><a href="https://x.com/clarkandcom" style="text-decoration: none; font-weight:bold; color: BLUE;">By Clark &amp; Company</a></H5>
+    <H5 style="text-align: right; padding-right: 8px;"><a href="https://x.com/clarkandcom" style="text-decoration: none; font-weight:bold; color: BLUE;">By Clark &amp; Company</a></H5>
 </div>
 
 <script>//////////////////////////////////////////////////////////////////////////////////////////////
@@ -585,6 +633,50 @@ function convert(str){
         str = str.replace(/([^\n。、．.）」』】｝〗》】\>\»\⁆\〙\]\}\)\>])\n/g, "$1");
     }
 
+    // 行頭の文字列を削除
+    const removeHead = document.getElementById('removeHead').value;
+    if (removeHead) {
+        const regexHead = new RegExp('^' + removeHead, 'gm');
+        str = str.replace(regexHead, '');
+    }
+
+    // 行末の文字列を削除
+    const removeEnd = document.getElementById('removeEnd').value;
+    if (removeEnd) {
+        const regexEnd = new RegExp(removeEnd + '$', 'gm');
+        str = str.replace(regexEnd, '');
+    }
+
+    // 行頭に文字列を追加
+    const prependText = document.getElementById('prependText').value;
+    if (prependText) {
+        str = str.split('\n').map(line => prependText + line).join('\n');
+    }
+
+    // 行末に文字列を追加
+    const appendText = document.getElementById('appendText').value;
+    if (appendText) {
+        str = str.split('\n').map(line => line + appendText).join('\n');
+    }
+
+    // 全角字下げ
+    if (document.getElementById('indentZenkaku').checked) {
+        const indentCount = parseInt(document.getElementById('indentCountZenkaku').value, 10);
+        const indent = '　'.repeat(indentCount);
+        str = str.replace(/^\s*/gm, indent);
+        console.log(indent);
+        str = str.replace(/^　+(?=[「『・’”●（【\'\"\(])/gm, '');
+    }
+
+    // 半角字下げ
+    if (document.getElementById('indentHankaku').checked) {
+        const indentCount = parseInt(document.getElementById('indentCountHankaku').value, 10);
+        const indent = ' '.repeat(indentCount);
+        str = str.replace(/^\s*/gm, indent);
+        console.log(indent);
+        str = str.replace(/^\s+(?=[「『・’”●（【\'\"\(])/gm, '');
+    }
+
     // 全角文字の処理 //
     // 全角数字を半角に変換
     if (document.getElementById('toHalfWidthNumbers').checked) {
@@ -779,7 +871,8 @@ function convert(str){
 
     // 参照に変換
     if (document.getElementById('toCharacterEntityReferences').checked) {
-        const entities = {        '&': '&amp;',
+        const entities = {
+        '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
         '"': '&quot;',
@@ -887,32 +980,6 @@ function convert(str){
         str = textarea.value;
     }
 
-    // 行頭の文字列を削除
-    const removeHead = document.getElementById('removeHead').value;
-    if (removeHead) {
-        const regexHead = new RegExp('^' + removeHead, 'gm');
-        str = str.replace(regexHead, '');
-    }
-
-    // 行末の文字列を削除
-    const removeEnd = document.getElementById('removeEnd').value;
-    if (removeEnd) {
-        const regexEnd = new RegExp(removeEnd + '$', 'gm');
-        str = str.replace(regexEnd, '');
-    }
-
-    // 行頭に文字列を追加
-    const prependText = document.getElementById('prependText').value;
-    if (prependText) {
-        str = str.split('\n').map(line => prependText + line).join('\n');
-    }
-
-    // 行末に文字列を追加
-    const appendText = document.getElementById('appendText').value;
-    if (appendText) {
-        str = str.split('\n').map(line => line + appendText).join('\n');
-    }
-
     // 置換機能
     const findTexts = [document.getElementById('findText1').value, document.getElementById('findText2').value, document.getElementById('findText3').value];
     const replaceTexts = [document.getElementById('replaceText1').value, document.getElementById('replaceText2').value, document.getElementById('replaceText3').value];
@@ -993,16 +1060,21 @@ function copyText() {
         }
 
         // ファイル保存機能
-        function saveToFile() {
-            const text = document.getElementById('outputText').value;
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'output.txt';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+const saveButton = document.getElementById('saveToFile');
+const textarea = document.getElementById('outputText')
+saveButton.addEventListener('click', async () => {
+  const opts = {
+    suggestedName: 'output',
+    types: [{
+      description: 'Text file',
+      accept: {'text/plain': ['.txt']},
+    }],
+  };
+  const handle = await window.showSaveFilePicker(opts);
+  const writable = await handle.createWritable()
+  await writable.write(textarea.value)
+  await writable.close()
+})
     </script>
 </body>
 </html>
