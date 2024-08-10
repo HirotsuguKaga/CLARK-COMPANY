@@ -1,152 +1,152 @@
 <!DOCTYPE html>
-<!-- テキスト整形ツール　ver.0.11　2024/08/07　by Clark & Company -->
+<!-- テキスト整形ツール　ver.0.12　2024/08/10　by Clark & Company -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>テキスト整形ツール - Clark & Company</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        .container {
-            background: white;
-            padding: 0px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            width: 100%;
-            max-width: 1040px;
-            display: flex;
-            flex-direction: column;
-            gap: 0px;
-        }
-        .checkboxes {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2px;
-            line-height: 100%;
-            margin: 0;
-        }
-        .checkboxes label {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-        .inputs {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        #matchText{
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            height: 30px;
-        }
-        .input-pair {
-            gap: 10px;
-            margin: 8px;
-        }
-        .input-pair input[type="text"] {
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            height: 30px;
-            width: 220px;
-        }
-        .input-pair label {
-            align-items: center;
-            gap: 5px;
-            height: 30px;
-        }
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-        }
-        .textareas {
-            display: flex;
-            gap: 20px;
-        }
-        textarea {
-            width: 100%;
-            height: 600px;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-        }
-        button {
-            margin-top: 10px;
-            margin: 3px;
-            padding: 2px 5px;
-            border: none;
-            background-color: #ccd;
-            color: black;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-            color: #fff;
-        }
-        #transformText{
-            color: white;
-            font-weight: bold;
-            padding: 8px 45px;
-            background-color: #13a;
-        }
-        #transformText:hover {
-            background-color: #0a4;
-        }
-        #toggleRegexInfo{
-            text-align: right;
-        }
-        #regexInfo {
-            display: none;
-            background-color: #f0f0f0;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-top: 10px;
-        }
-        #regexExplanation {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-top: 10px;
-            background-color: #f9f9f9;
-        }
-        .example {
-            background-color: #e6f7ff;
-            padding: 3px;
-            margin: 7px 0;
-            border-left: 3px solid #007bff;
-        }
-        h1 {
-            font-size: 1.6em;
-            margin: 0px;
-        }
-        h3 {
-            font-size: 1.05em;
-            margin: 0px;
-        }
-        p {
-            margin: 3px;
-        }
-        code {
-            color: #333;
-            font-weight: bold;
-        }
-        label{
-            margin: 3px;
-        }
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+.container {
+    background: white;
+    padding: 0px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 1040px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+.checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    line-height: 100%;
+    margin: 0;
+}
+.checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#matchText{
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 30px;
+}
+.input-pair {
+    gap: 10px;
+    margin: 8px;
+}
+.input-pair input[type="text"] {
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 30px;
+    width: 220px;
+}
+.input-pair label {
+    align-items: center;
+    gap: 5px;
+    height: 30px;
+}
+.button-container {
+    display: flex;
+    justify-content: space-between;
+}
+.textareas {
+    display: flex;
+    gap: 20px;
+}
+textarea {
+    width: 100%;
+    height: 600px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+}
+button {
+    margin-top: 10px;
+    margin: 3px;
+    padding: 2px 5px;
+    border: none;
+    background-color: #ccd;
+    color: black;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+button:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+#transformText{
+    color: white;
+    font-weight: bold;
+    padding: 8px 45px;
+    background-color: #13a;
+}
+#transformText:hover {
+    background-color: #0a4;
+}
+#toggleRegexInfo{
+    text-align: right;
+}
+#regexInfo {
+    display: none;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+}
+#regexExplanation {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #f9f9f9;
+}
+.example {
+    background-color: #e6f7ff;
+    padding: 3px;
+    margin: 7px 0;
+    border-left: 3px solid #007bff;
+}
+h1 {
+    font-size: 1.6em;
+    margin: 0px;
+}
+h3 {
+    font-size: 1.05em;
+    margin: 0px;
+}
+p {
+    margin: 3px;
+}
+code {
+    color: #333;
+    font-weight: bold;
+}
+label{
+    margin: 3px;
+}
 
         /* CSSアコーディオン */
 .toggle {		/*ベース*/
@@ -234,16 +234,17 @@
 
 <body>
     <div class="container">
-<h1>　テキスト整形ツール Ver.0.11</h1>
+<h1>　テキスト整形ツール Ver.0.12</h1>
 <div class="checkboxes">
   <div>
    <input id="block-01" type="checkbox" class="toggle"><label class="Label" for="block-01">空白処理</label><div class="content">
-    <label><input type="checkbox" id="removeAllSpaces"> 全ての空白を削除</label>
-    <label><input type="checkbox" id="trimStart"> 行頭の空白を削除</label>
-    <label><input type="checkbox" id="trimEnd"> 行末の空白を削除</label>
-    <label><input type="checkbox" id="collapseSpaces"> 連続する空白を一つに</label>
+    <label><input type="checkbox" id="removeAllSpaces">全ての空白を削除</label>
+    <label><input type="checkbox" id="removeZenkakuSpaces">全ての全角空白を削除</label>
+    <label><input type="checkbox" id="trimStart">行頭の空白を削除</label>
+    <label><input type="checkbox" id="trimEnd">行末の空白を削除</label>
+    <label><input type="checkbox" id="collapseSpaces">連続する空白を一つに</label>
     <label><input type="checkbox" id="spacesToTabs">連続する空白をタブに</label>
-    <label><input type="checkbox" id="removeTabs"> 全てのタブを削除</label>
+    <label><input type="checkbox" id="removeTabs">全てのタブを削除</label>
     <label><input type="checkbox" id="tabsToSpaces">タブを<input type="number" id="spaceCount" value="4" min="1" max="9" step="1" style="width: 1.8em;">個の空白に</label></div>
   </div>
   <div>
@@ -293,13 +294,22 @@
     <label><input type="checkbox" id="removeCommasToNumbers">桁区切りを削除</label>
     <label><input type="checkbox" id="englishToKanjiNumbers">数字を漢数字に</label>
     <label><input type="checkbox" id="convertAllNumbersToRoman">ローマ数字に</label>
-    <label><input type="checkbox" id="convertToCircledNumbers">丸数字に(①-㊿)</label></div>
+    <label><input type="checkbox" id="convertToCircledNumbers">特殊数字に<select id="numberType">
+<option value="circledNumbers">①</option>
+<option value="circledNumbersBlack">❶</option>
+<option value="bracedNumbers">⑴</option>
+<option value="dottedNumbers">⒈</option>
+<option value="bracedKanjiNumbers">㈠</option>
+<option value="romanLargeNumbers">Ⅰ</option>
+<option value="romanSmallNumbers">ⅰ</option>
+</select></label></div>
   </div>
   <div>
   <input id="block-06" type="checkbox" class="toggle"><label class="Label" for="block-06">全角句読点の処理</label><div class="content">
     <label><input type="checkbox" id="toTenmaru">句読点を「、。」に</label>
     <label><input type="checkbox" id="toPirikan">句読点を「，．」に</label>
-    <label><input type="checkbox" id="toPirimaru"> 句読点を「，。」に</label></div>
+    <label><input type="checkbox" id="toPirimaru">句読点を「，。」に</label>
+    <label><input type="checkbox" id="removePeriod">閉じ括弧前の句点を削除</label></div>
   </div>
   <div>
     <input id="block-07" type="checkbox" class="toggle"><label class="Label" for="block-07">文字参照</label><div class="content">
@@ -558,27 +568,34 @@ function addNewlineAfterString(str, target) {
 function convert(str){
     //// 各種チェックボックスのオプションに基づき、テキストを変換 ////
     //　空白処理　//
+    // 全ての空白を取り除く
+    if (document.getElementById('removeAllSpaces').checked) {
+        str = str.replace(/[ \u3000\t]/g, '');
+    }
+
+    // 全ての全角空白を取り除く
+    if (document.getElementById('removeZenkakuSpaces').checked) {
+        str = str.replace(/\u3000/g, '');
+    }
+
     // 行頭の空白を取り除く
     if (document.getElementById('trimStart').checked) {
-        str = str.replace(/^\s+/gm, '');
+        str = str.replace(/^[ \u3000\t]+/gm, '');
     }
 
     // 行末の空白を取り除く
     if (document.getElementById('trimEnd').checked) {
-        str = str.replace(/\s+$/gm, '');
-    }
-
-    // 全ての空白を取り除く
-    if (document.getElementById('removeAllSpaces').checked) {
-        str = str.replace(/\s+/g, '');
+        str = str.replace(/[ \u3000\t]+$/gm, '');
     }
 
     // 連続する空白を一つに変換
     if (document.getElementById('collapseSpaces').checked) {
-        str = str.replace(/\s+/g, ' ');
+        str = str.replace(/  +/g, ' ');
+        str = str.replace(/　　+/g, '　');
+        str = str.replace(/\t\t+/g, '\t');
     }
 
-    // タブを取り除く
+    // 全てのタブを取り除く
     if (document.getElementById('removeTabs').checked) {
         str = str.replace(/\t/g, '');
     }
@@ -663,18 +680,18 @@ function convert(str){
     if (document.getElementById('indentZenkaku').checked) {
         const indentCount = parseInt(document.getElementById('indentCountZenkaku').value, 10);
         const indent = '　'.repeat(indentCount);
-        str = str.replace(/^\s*/gm, indent);
+        str = str.replace(/^[ \u3000\t]*/gm, indent);
         console.log(indent);
-        str = str.replace(/^　+(?=[「『・’”●（【\'\"\(])/gm, '');
+        str = str.replace(/^　+(?=[「『・’”●（【\'\"\(\n])/gm, '');
     }
 
     // 半角字下げ
     if (document.getElementById('indentHankaku').checked) {
         const indentCount = parseInt(document.getElementById('indentCountHankaku').value, 10);
         const indent = ' '.repeat(indentCount);
-        str = str.replace(/^\s*/gm, indent);
+        str = str.replace(/^[ \u3000\t]*/gm, indent);
         console.log(indent);
-        str = str.replace(/^\s+(?=[「『・’”●（【\'\"\(])/gm, '');
+        str = str.replace(/^ +(?=[「『・’”●（【\'\"\(\n])/gm, '');
     }
 
     // 全角文字の処理 //
@@ -793,11 +810,50 @@ function convert(str){
 '20': '⑳', '19': '⑲', '18': '⑱', '17': '⑰', '16': '⑯', '15': '⑮', '14': '⑭', '13': '⑬', '12': '⑫', '11': '⑪',
 '10': '⑩', '9': '⑨', '8': '⑧', '7': '⑦', '6': '⑥', '5': '⑤', '4': '④', '3': '③', '2': '②', '1': '①', '0': '⓪'
         };
+        const circledNumbersBlack = {
+'50': '㊿', '49': '㊾', '48': '㊽', '47': '㊼', '46': '㊻', '45': '㊺', '44': '㊹', '43': '㊸', '42': '㊷', '41': '㊶',
+'40': '㊵', '39': '㊴', '38': '㊳', '37': '㊲', '36': '㊱', '35': '㉟', '34': '㉞', '33': '㉝', '32': '㉜', '31': '㉛',
+'30': '㉚', '29': '㉙', '28': '㉘', '27': '㉗', '26': '㉖', '25': '㉕', '24': '㉔', '23': '㉓', '22': '㉒', '21': '㉑',
+'20': '⓴', '19': '⓳', '18': '⓲', '17': '⓱', '16': '⓰', '15': '⓯', '14': '⓮', '13': '⓭', '12': '⓬', '11': '⓫',
+'10': '❿', '9': '❾', '8': '❽', '7': '❼', '6': '❻', '5': '❺', '4': '❹', '3': '❸', '2': '❷', '1': '❶', '0': '⓪'
+        };
+        const bracedNumbers = {
+'20': '⒇', '19': '⒆', '18': '⒅', '17': '⒄', '16': '⒃', '15': '⒂', '14': '⒁', '13': '⒀', '12': '⑿', '11': '⑾',
+'10': '⑽', '9': '⑼', '8': '⑻', '7': '⑺', '6': '⑹', '5': '⑸', '4': '⑷', '3': '⑶', '2': '⑵', '1': '⑴'
+        };
+        const romanLargeNumbers = {
+'12': 'Ⅻ', '11': 'Ⅺ','10': 'Ⅹ', '9': 'Ⅸ', '8': 'Ⅷ', '7': 'Ⅶ', '6': 'Ⅵ', '5': 'Ⅴ', '4': 'Ⅳ', '3': 'Ⅲ', '2': 'Ⅱ', '1': 'Ⅰ'
+        };
+        const romanSmallNumbers = {
+'12': 'ⅻ', '11': 'ⅺ','10': 'ⅹ', '9': 'ⅸ', '8': 'ⅷ', '7': 'ⅶ', '6': 'ⅵ', '5': 'ⅴ', '4': 'ⅳ', '3': 'ⅲ', '2': 'ⅱ', '1': 'ⅰ'
+        };
+        const bracedKanjiNumbers = {
+'10': '㈩', '9': '㈨', '8': '㈧', '7': '㈦', '6': '㈥', '5': '㈤', '4': '㈣', '3': '🉁', '2': '🉂', '1': '㈠'
+        };
+        const dottedNumbers = {
+'9': '⒐', '8': '⒏', '7': '⒎', '6': '⒍', '5': '⒌', '4': '⒋', '3': '⒊', '2': '⒉', '1': '⒈'
+        };
+        const numberType = document.getElementById('numberType').value;
+        console.log(numberType);
         return str.replace(/\d{1,2}/g, match => {
-            return circledNumbers[match] || match;
-        });
-        str = str.replace(/\d{1,2}/g, match => {
-            return circledNumbers[match] || match;
+            switch(numberType){
+               case 'circledNumbers':
+                   return circledNumbers[match] || match;
+               case 'circledNumbersBlack':
+                   return circledNumbersBlack[match] || match;
+               case 'bracedNumbers':
+                   return bracedNumbers[match] || match;
+               case 'romanLargeNumbers':
+                   return romanLargeNumbers[match] || match;
+               case 'romanSmallNumbers':
+                   return romanSmallNumbers[match] || match;
+               case 'bracedKanjiNumbers':
+                   return bracedKanjiNumbers[match] || match;
+               case 'dottedNumbers':
+                   return dottedNumbers[match] || match;
+               case 'circledNumbers':
+                   return circledNumbers[match] || match;
+            }
         });
     }
 
@@ -842,7 +898,13 @@ function convert(str){
         const conversions = {'．': '。', '、': '，'};
         str = str.replace(/[．、]/g, match => conversions[match] || match);
     }
+    
+    // 閉じ括弧の直前の句点を削除
+    if (document.getElementById('removePeriod').checked) {
+        str = str.replace(/[。．\.](?=[」』）｝])/g, '');
+    }
 
+    // 文字参照の処理 //
     // 全て数値文字参照に変換
     if (document.getElementById('toNumericCR').checked) {
         str = str.split('').map(char => {
