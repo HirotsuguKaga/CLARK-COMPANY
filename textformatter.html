@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- テキスト整形ツール　ver.0.12　2024/08/10　by Clark & Company -->
+<!-- テキスト整形ツール　ver.0.13　2024/08/11　by Clark & Company -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -234,7 +234,7 @@ label{
 
 <body>
     <div class="container">
-<h1>　テキスト整形ツール Ver.0.12</h1>
+<h1>　テキスト整形ツール Ver.0.13</h1>
 <div class="checkboxes">
   <div>
    <input id="block-01" type="checkbox" class="toggle"><label class="Label" for="block-01">空白処理</label><div class="content">
@@ -249,11 +249,11 @@ label{
   </div>
   <div>
    <input id="block-02" type="checkbox" class="toggle"><label class="Label" for="block-02">改行処理</label><div class="content">
+    <label><input type="checkbox" id="removeNewlines">全ての改行を削除</label>
+    <label><input type="checkbox" id="removeEmptyLines">全ての空行を削除</label>
     <label><input type="checkbox" id="newlineAfterPeriod">半角ピリオドの<br>直後の空白で改行</label>
     <label><input type="checkbox" id="newlineBefore"><input type="text" id="newlineBeforeString" size="3" value="-">の直前で改行</label>
     <label><input type="checkbox" id="newlineAfter"><input type="text" id="newlineAfterString" size="3" value="。">の直後で改行</label>
-    <label><input type="checkbox" id="removeNewlines">全ての改行を削除</label>
-    <label><input type="checkbox" id="removeEmptyLines">全ての空行を削除</label>
     <label><input type="checkbox" id="mergeEmptyLines">空行の連続を一行に</label>
     <label><input type="checkbox" id="removeExeptionalNewlines">句点と閉じ括弧以外<br>での改行を削除</label></div>
   </div>
@@ -608,6 +608,16 @@ function convert(str){
     }
 
     //　改行処理　//
+    // 全ての改行を取り除く
+    if (document.getElementById('removeNewlines').checked) {
+        str = str.replace(/\r?\n|\r/g, '');
+    }
+
+    // 空白行を取り除く
+    if (document.getElementById('removeEmptyLines').checked) {
+        str = str.replace(/^\s*[\r\n]/gm, '');
+    }
+
     // ピリオド直後の空白を改行に変換
     if (document.getElementById('newlineAfterPeriod').checked) {
         str = str.replace(/\. /g, '.\n');
@@ -623,16 +633,6 @@ function convert(str){
     if (document.getElementById('newlineAfter').checked) {
         const newlineAfterString = document.getElementById('newlineAfterString').value;
         str = addNewlineAfterString(str, newlineAfterString);
-    }
-
-    // 全ての改行を取り除く
-    if (document.getElementById('removeNewlines').checked) {
-        str = str.replace(/\r?\n|\r/g, '');
-    }
-
-    // 空白行を取り除く
-    if (document.getElementById('removeEmptyLines').checked) {
-        str = str.replace(/^\s*[\r\n]/gm, '');
     }
 
     // 連続した空白をタブに変換
