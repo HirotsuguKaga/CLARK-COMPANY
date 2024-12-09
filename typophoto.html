@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypoPhoto Editor</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #control-panel {
+            margin-bottom: 10px;
+        }
+        #images {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border: 1px solid #000;
+            overflow: auto;
+        }
+        #images img {
+            position: absolute;
+            cursor: grab;
+            width: 100px;
+            height: 100px;
+            transition: border 0.2s;
+        }
+        .dragging {
+            border: 2px dashed #ff0000;
+        }
+    </style>
+</head>
+<body>
+<h1>TypoPhoto Editor</h1>
+    <div id="control-panel">
+        <!-- ローカルフォルダを選択するためのファイル入力ボタン -->
+        <label style="color: blue; font-weight:bold"><input type="file" id="folderInput" webkitdirectory directory multiple STYLE="display: none;">フォルダーを選択</label>　　
+        <!-- フォルダを選択するセレクトボックス ->
+        <select id="folderSelect">
+            <option value="folder1">フォルダ1</option>
+            <option value="folder2">フォルダ2</option>
+            <!- 追加したいフォルダをここに記述します -->
+        </select>
+        <!-- アルファベットを入力するテキストボックス -->
+        <textarea id="input" placeholder="ここにアルファベットを入力 (例: ABC)" cols="40"></textarea>
+        <!-- 画像を表示するためのボタン -->
+        <button onclick="displayImages()">画像を表示</button>
+        <!-- 画像をダウンロードするためのボタン -->
+        <button onclick="downloadImage()">画像をダウンロード</button>
+    </div>
+    <!-- 画像が表示されるエリア -->
+    <div id="images"></div>
+    <!-- 画像を一つの画像として合成するためのCanvas -->
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        // デフォルトフォルダの画像ファイル名のリスト
+        const defaultImages = {
+            'folder1': ['A.png', 'B.png', 'C.png','D.png','E.png','F.png','G.png','H.png','I.png','J.png','K.png','L.png','M.png','N.png','O.png','P.png','Q.png','R.png','S.png','T.png','U.png','V.png','W.png','X.png','Y.png','Z.png'],
+            'folder2': ['A.png', 'B.png', 'C.png','D.png','E.png','F.png','G.png','H.png','I.png','J.png','K.png','L.png','M.png','N.png','O.png','P.png','Q.png','R.png','S.png','T.png','U.png','V.png','W.png','X.png','Y.png','Z.png']
+        };
+
+        let selectedFiles = [];
+        let offsetX, offsetY, draggedElement;
+
+        // フォルダが選択されたときに呼び出されるイベントリスナー
+        document.getElementById('folderInput').addEventListener('change', (event) => {
+            selectedFiles = event.target.files;
+        });
+
+        // 画像を表示する関数
+        function displayImages() {
+            const input = document.getElementById('input').value.toUpperCase().split('\n');
+            //const folderSelect = document.getElementById('folderSelect').value;
+            const imageContainer = document.getElementById('images');
+            imageContainer.innerHTML = '';
+
+            const selectedImages = [];
+            let row = 0;
+            let column = 0;
+
+            // 選択されたファイルがある場合
+            input.forEach(line => {
+                column = 0;
+                for (let char of line) {
+                    if (selectedFiles.length > 0) {
+                        for (let file of selectedFiles) {
+                            const fileName = file.name.toUpperCase();
+                            if (fileName.startsWith(char)) {
+                                selectedImages.push(URL.createObjectURL(file));
+                                const imgElement = document.createElement('img');
+                                imgElement.src = URL.createObjectURL(file);
+                                imgElement.style.left = `${column * 100}px`;
+                                imgElement.style.top = `${row * 100}px`;
+                                imgElement.draggable = true;
+                                imgElement.addEventListener('mousedown', onMouseDown);
+                                imageContainer.appendChild(imgElement);
+                                column++;
+                                break;
+                            }
+                        }
+                    } else { // 選択されたファイルがない場合はデフォルトフォルダを使用
+                        const filteredImages = defaultImages[folderSelect].filter(image => image.startsWith(char));
+                        filteredImages.forEach(image => {
+                            selectedImages.push(`${folderSelect}/${image}`);
+                            const imgElement = document.createElement('img');
+                            imgElement.src = `${folderSelect}/${image}`;
+                            imgElement.style.left = `${column * 100}px`;
+                            imgElement.style.top = `${row * 100}px`;
+                            imgElement.draggable = true;
+                            imgElement.addEventListener('mousedown', onMouseDown);
+                            imageContainer.appendChild(imgElement);
+                            column++;
+                        });
+                    }
+                }
+                row++;
+            });
+
+            return selectedImages;
+        }
+
+        // 画像のドラッグ操作の開始
+        function onMouseDown(event) {
+            draggedElement = event.target;
+            offsetX = event.clientX - draggedElement.offsetLeft;
+            offsetY = event.clientY - draggedElement.offsetTop;
+            draggedElement.classList.add('dragging');
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        // 画像のドラッグ操作中
+        function onMouseMove(event) {
+            let newLeft = event.clientX - offsetX;
+            let newTop = event.clientY - offsetY;
+
+            // 画像が初期位置より上に移動しないように制限
+            if (newTop < 0) {
+                newTop = 0;
+            }
+
+            draggedElement.style.left = `${newLeft}px`;
+            draggedElement.style.top = `${newTop}px`;
+        }
+
+        // 画像のドラッグ操作の終了
+        function onMouseUp() {
+            draggedElement.classList.remove('dragging');
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        // 画像をダウンロードする関数
+        function downloadImage() {
+            const images = Array.from(document.querySelectorAll('#images img'));
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Canvas のサイズを画像の位置に合わせて調整
+            const positions = images.map(img => ({
+                left: parseInt(img.style.left, 10),
+                top: parseInt(img.style.top, 10)
+            }));
+            const maxWidth = Math.max(...positions.map(pos => pos.left)) + 100;
+            const maxHeight = Math.max(...positions.map(pos => pos.top)) + 100;
+
+            canvas.width = maxWidth;
+            canvas.height = maxHeight;
+
+            let loadedCount = 0;
+
+            images.forEach((img, index) => {
+                const imgElement = new Image();
+                imgElement.onload = () => {
+                    ctx.drawImage(imgElement, positions[index].left, positions[index].top, 100, 100);
+                    loadedCount++;
+                    if (loadedCount === images.length) {
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = 'TypoPhoto.png';
+                        link.click();
+                    }
+                };
+                imgElement.src = img.src;
+            });
+        }
+    </script>
+</body>
+</html>
