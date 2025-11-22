@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DICE ROLLER</title>
+    <style>
+        /* CSSスタイル */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image: url(paper.webp);
+            background-color: #e0e0e0;
+            font-family: sans-serif;
+            overflow: hidden;
+            position: relative; /* dice-area absolute の基準 */
+        }
+
+        h1 {
+            color: #262;
+            font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif;
+            font-size: 4rem;
+            margin-bottom: 40px;
+            z-index: 3; /* 手前に */
+            position: relative; /* z-indexを有効にするため */
+        }
+
+        /* サイコロエリアを画面中央に固定 */
+        .dice-area {
+            display: flex;
+            gap: 50px;
+            position: absolute; /* body基準で絶対位置に */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* 中央寄せ */
+            margin-top: -30px; /* H1とボタンの間を考慮して微調整 */
+            z-index: 1;
+        }
+
+        .dice-container {
+            width: 100px; /* サイコロのサイズ */
+            height: 100px;
+            perspective: 500px; /* 3D効果の強さ */
+            position: relative; /* 影の位置決めのため */
+        }
+
+        /* サイコロの影 */
+        .dice-shadow {
+            position: absolute;
+            bottom: -20px; /* サイコロの下に配置 */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px; /* 影の幅 */
+            height: 20px; /* 影の高さ */
+            background: rgba(0, 0, 0, 0.2); /* 影の色と透明度 */
+            border-radius: 50%; /* 楕円形 */
+            filter: blur(8px); /* 影をぼかす */
+            z-index: 0; /* サイコロより奥に */
+            transition: opacity 0.3s ease-in-out; /* 影のフェードイン/アウト */
+            opacity: 1; /* 初期は表示 */
+        }
+        .dice-shadow.hidden {
+            opacity: 0; /* 転がり中は非表示 */
+        }
+
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.8s ease-out;
+        }
+
+        .face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            box-sizing: border-box;
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+
+        .face img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 各面の初期位置（サイズが100pxなので translateZ(50px) ） */
+        .front  { transform: rotateY(0deg) translateZ(50px); }
+        .back   { transform: rotateX(180deg) translateZ(50px); }
+        .right  { transform: rotateY(90deg) translateZ(50px); }
+        .left   { transform: rotateY(-90deg) translateZ(50px); }
+        .top    { transform: rotateX(90deg) translateZ(50px); }
+        .bottom { transform: rotateX(-90deg) translateZ(50px); }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.3em;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 3; /* サイコロより手前に */
+            position: relative; /* z-indexを有効にするため */
+            margin-top: 150px; /* サイコロエリアの下に配置 */
+        }
+
+        button:hover {
+            background-color: #218838;
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        #resultText {
+            margin-top: 25px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #555;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            z-index: 3;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dice Roller</h1>
+    <div class="dice-area">
+        <div class="dice-container" id="diceContainer1">
+            <div id="dice1" class="cube">
+                <div class="face front"><img src="d6-1.webp" alt="1"></div>
+                <div class="face back"><img src="d6-6.webp" alt="6"></div>
+                <div class="face right"><img src="d6-3.webp" alt="3"></div>
+                <div class="face left"><img src="d6-4.webp" alt="4"></div>
+                <div class="face top"><img src="d6-2.webp" alt="2"></div>
+                <div class="face bottom"><img src="d6-5.webp" alt="5"></div>
+            </div>
+            <div class="dice-shadow" id="shadow1"></div>
+        </div>
+        <div class="dice-container" id="diceContainer2">
+            <div id="dice2" class="cube">
+                <div class="face front"><img src="d6-1.webp" alt="1"></div>
+                <div class="face back"><img src="d6-6.webp" alt="6"></div>
+                <div class="face right"><img src="d6-3.webp" alt="3"></div>
+                <div class="face left"><img src="d6-4.webp" alt="4"></div>
+                <div class="face top"><img src="d6-2.webp" alt="2"></div>
+                <div class="face bottom"><img src="d6-5.webp" alt="5"></div>
+            </div>
+            <div class="dice-shadow" id="shadow2"></div>
+        </div>
+    </div>
+    <button id="rollButton">ROLL</button>
+    <p id="resultText"></p>
+
+    <script>
+        // JavaScriptコード
+        document.addEventListener('DOMContentLoaded', () => {
+            const rollButton = document.getElementById('rollButton');
+            const diceContainer1 = document.getElementById('diceContainer1');
+            const dice1 = document.getElementById('dice1');
+            const shadow1 = document.getElementById('shadow1'); // 影要素
+            const diceContainer2 = document.getElementById('diceContainer2');
+            const dice2 = document.getElementById('dice2');
+            const shadow2 = document.getElementById('shadow2'); // 影要素
+            const resultText = document.getElementById('resultText');
+
+            //効果音の準備
+            const audio = new Audio('dice_roll.mp3'); 
+            
+            // サイコロの各面に表示される数字と、それに対応する回転角度を定義
+            const faces = {
+                1: { rx: 0, ry: 0 },
+                2: { rx: -90, ry: 0 },
+                3: { rx: 0, ry: 90 },
+                4: { rx: 0, ry: -90 },
+                5: { rx: 90, ry: 0 },
+                6: { rx: 180, ry: 0 }
+            };
+
+            function rollDice(diceElement, diceContainerElement, shadowElement, isFirstDice) {
+                const result = Math.floor(Math.random() * 6) + 1;
+
+                // 転がり中は影を非表示にする
+                shadowElement.classList.add('hidden');
+
+                // 開始位置と終了位置を調整
+                const startOffsetX = (isFirstDice ? 300 : 350) + Math.random() * 50;
+                const startOffsetY = (isFirstDice ? -300 : -350) - Math.random() * 50;
+                
+                // 停止位置はdice-areaの中央からの相対位置になる
+                const endOffsetX = (isFirstDice ? -25 : 25) + (Math.random() * 30 - 15);
+                const endOffsetY = (Math.random() * 30 - 15);
+
+                // 初期状態のCSS transformを設定（画面外）
+                diceContainerElement.style.transform = `translateX(${startOffsetX}px) translateY(${startOffsetY}px)`;
+                
+                // サイコロ自体の回転
+                const rotationMultiplierX = Math.floor(Math.random() * 5) + 3;
+                const rotationMultiplierY = Math.floor(Math.random() * 5) + 3;
+
+                const targetFace = faces[result];
+                const finalRotationX = (rotationMultiplierX * 360) + targetFace.rx + (Math.random() * 2 - 1);
+                const finalRotationY = (rotationMultiplierY * 360) + targetFace.ry + (Math.random() * 2 - 1);
+
+                setTimeout(() => {
+                    // アニメーション開始
+                    diceContainerElement.style.transform = `translateX(${endOffsetX}px) translateY(${endOffsetY}px)`;
+                    diceElement.style.transform = `rotateX(${finalRotationX}deg) rotateY(${finalRotationY}deg)`;
+                }, 50);
+
+                return result;
+            }
+
+            rollButton.addEventListener('click', () => {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log("Audio play failed:", e));
+
+                rollButton.disabled = true;
+                resultText.textContent = "転がし中...";
+
+                // アニメーションのリセット
+                diceContainer1.style.transition = 'none';
+                diceContainer2.style.transition = 'none';
+                dice1.style.transition = 'none';
+                dice2.style.transition = 'none';
+
+                // 初期位置へのリセット（画面外）
+                diceContainer1.style.transform = `translateX(300px) translateY(-300px)`;
+                diceContainer2.style.transform = `translateX(350px) translateY(-350px)`;
+                dice1.style.transform = `rotateX(0deg) rotateY(0deg)`;
+                dice2.style.transform = `rotateX(0deg) rotateY(0deg)`;
+
+                // 影を非表示にするクラスを追加
+                shadow1.classList.add('hidden');
+                shadow2.classList.add('hidden');
+
+                setTimeout(() => {
+                    // アニメーションを再有効化
+                    diceContainer1.style.transition = 'transform 1.8s ease-out';
+                    diceContainer2.style.transition = 'transform 1.8s ease-out';
+                    dice1.style.transition = 'transform 1.8s ease-out';
+                    dice2.style.transition = 'transform 1.8s ease-out';
+
+                    const result1 = rollDice(dice1, diceContainer1, shadow1, true);
+                    const result2 = rollDice(dice2, diceContainer2, shadow2, false);
+
+                    setTimeout(() => {
+                        resultText.textContent = `${result1} と ${result2} (合計 ${result1 + result2})`;
+                        rollButton.disabled = false;
+                        // アニメーション終了後に影を表示する
+                        shadow1.classList.remove('hidden');
+                        shadow2.classList.remove('hidden');
+                    }, 1800);
+                }, 100);
+            });
+
+            // 初期位置設定 (ロード時)
+            // dice-areaを中央に固定したため、dice-containerのtranslateXで相対位置調整
+            diceContainer1.style.transform = `translateX(-30px) translateY(0px)`;
+            diceContainer2.style.transform = `translateX(30px) translateY(0px)`;
+            dice1.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            dice2.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            
+            // ページロード時にサイコロを振る処理を呼び出す
+            rollButton.click();
+        });
+    </script>
+</body>
+</html>
