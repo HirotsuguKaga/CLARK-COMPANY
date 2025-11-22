@@ -96,10 +96,13 @@
         .error { background-color: var(--error-bg); color: var(--error-text); border-color: var(--error-bg); }
         .info { background-color: var(--info-bg); color: var(--info-text); border-color: var(--info-bg); }
 
-        /* 記号フォントを参照しないように、記号部分に特定のスタイルを適用しない */
-        .status::before { content: ""; margin-right: 8px; }
-
-
+        .legend {
+            font-size: 0.8em;
+            color: var(--dark-gray);
+            margin-top: 10px;
+            padding-left: 10px;
+        }
+        
         #downloadLinks ul {
             list-style: none;
             padding: 0;
@@ -157,14 +160,6 @@
             padding-top: 20px;
             border-top: 1px solid var(--border-color);
         }
-        
-        /* 記号参照の凡例 */
-        .legend {
-            font-size: 0.8em;
-            color: var(--dark-gray);
-            margin-top: 10px;
-            padding-left: 10px;
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -172,18 +167,18 @@
 </head>
 <body>
     <div class="container">
-        <h1>\uD83D\uDCC4 PDF 分割ツール</h1>
+        <h1>&#x1f4c3; PDF 分割ツール</h1>
         
         <p class="info">ファイルをブラウザのメモリ内で分割します。外部へのアップロードはありません。</p>
         
         <div class="legend">
-            * 凡例: \u2705=成功, \uD83C\uDF89=完了, \uD83D\uDED1=エラー, \uD83D\uDD35=情報
+            * 凡例: &#x2705;=成功, &#x1f389;=完了, &#x1f6d1;=エラー, &#x2139;=情報
         </div>
         
         <label for="pdfFile">分割するPDFファイルを選択してください:</label>
         <input type="file" id="pdfFile" accept=".pdf">
         
-        <div id="status" class="status success">\u2705 準備完了。PDFファイルを選択してください。</div>
+        <div id="status" class="status success">&#x2705; 準備完了。PDFファイルを選択してください。</div>
 
         <h2>ダウンロード</h2>
         <div class="button-group">
@@ -195,7 +190,7 @@
         </div>
 
         <div class="footer-note">
-            <p>※ 各ファイルは8MB程度になるように分割されます。<br>
+            <p>※ 各ファイルが8MB程度になるように分割されます。<br>
             ※ 1ページで8MBを超えるPDFは、そのページ単体で出力されます。</p>
         </div>
     </div>
@@ -220,7 +215,8 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            statusDiv.textContent = `\uD83D\uDD35 「${file.name}」の分割を開始します...`;
+            // JavaScriptで表示できるUnicodeエスケープを使用
+            statusDiv.textContent = '\u2139 「' + file.name + '」の分割を開始します...';
             statusDiv.className = 'status info';
             downloadLinksDiv.innerHTML = '';
             downloadZipButton.disabled = true;
@@ -246,7 +242,7 @@
                         const currentBytes = await currentPdfDoc.save();
                         
                         if (currentBytes.length > MAX_SIZE_BYTES) {
-                            // サイズオーバー: 最後に加えたページを削除し、このチャンクを確定
+                            // ?? サイズオーバー: 最後に加えたページを削除し、このチャンクを確定
                             currentPdfDoc.removePage(currentPdfDoc.getPageCount() - 1);
                             
                             if (currentPdfDoc.getPageCount() === 0) {
@@ -281,21 +277,21 @@
                     }
                 }
                 
-                statusDiv.textContent = '\uD83C\uDF89 分割が完了しました。ダウンロードリンクをご確認ください。';
+                statusDiv.textContent = '\uD83C\uDF89 分割が完了しました！ダウンロードリンクをご確認ください。';
                 statusDiv.className = 'status success';
                 downloadZipButton.disabled = false; // ZIPボタンを有効化
 
             } catch (error) {
                 console.error(error);
-                statusDiv.textContent = `\uD83D\uDED1 エラーが発生しました: ${error.message}`;
+                statusDiv.textContent = '\uD83D\uDED1 エラーが発生しました: ' + error.message;
                 statusDiv.className = 'status error';
                 downloadZipButton.disabled = true;
             }
         });
 
         /**
-         * PDFドキュメントをバイト配列として取得し、ダウンロードリンクを生成
-         * また、一括ダウンロード用にデータを配列に格納
+         * PDFドキュメントをバイト配列として取得し、ダウンロードリンクを生成。
+         * また、一括ダウンロード用にデータを配列に格納。
          */
         async function saveChunk(pdfDoc, partNum, originalFileName, container, note = '') {
             const pdfBytes = await pdfDoc.save();
@@ -332,7 +328,7 @@
         downloadZipButton.addEventListener('click', async () => {
             if (splitFilesData.length === 0) return;
 
-            statusDiv.textContent = '\uD83D\uDD35 ZIPファイルを作成中です。しばらくお待ちください...';
+            statusDiv.textContent = '\u2139 ZIPファイルを作成中です。しばらくお待ちください...';
             statusDiv.className = 'status info';
             downloadZipButton.disabled = true;
 
