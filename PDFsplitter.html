@@ -18,7 +18,7 @@
             --success-text: #155724;
             --error-bg: #f8d7da;
             --error-text: #721c24;
-            --info-bg: #e2f2ff; /* Light blue for info */
+            --info-bg: #e2f2ff;
             --info-text: #004085;
         }
 
@@ -31,20 +31,20 @@
             line-height: 1.6;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* 上部に配置 */
+            align-items: flex-start;
             min-height: 100vh;
-            padding-top: 40px; /* 上部に余白 */
+            padding-top: 40px;
             box-sizing: border-box;
         }
 
         .container {
             width: 100%;
-            max-width: 720px; 
+            max-width: 720px;
             margin: 20px;
             padding: 40px;
             background-color: white;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
 
         h1 {
@@ -65,12 +65,6 @@
             margin-bottom: 20px;
         }
 
-        p {
-            font-size: 0.95em;
-            margin-bottom: 15px;
-            color: var(--dark-gray);
-        }
-
         label {
             display: block;
             margin-bottom: 10px;
@@ -79,7 +73,7 @@
         }
 
         input[type="file"] {
-            display: block; /* ブロック要素にして縦に並べる */
+            display: block;
             width: 100%;
             padding: 12px;
             margin-bottom: 25px;
@@ -87,23 +81,9 @@
             border-radius: 6px;
             font-size: 1em;
             background-color: #fff;
-            box-sizing: border-box; /* paddingとborderをwidthに含める */
+            box-sizing: border-box;
         }
-
-        input[type="file"]::-webkit-file-upload-button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        input[type="file"]::-webkit-file-upload-button:hover {
-            background-color: #0056b3;
-        }
-
-
+        
         .status {
             padding: 15px 20px;
             border-radius: 8px;
@@ -115,6 +95,10 @@
         .success { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-bg); }
         .error { background-color: var(--error-bg); color: var(--error-text); border-color: var(--error-bg); }
         .info { background-color: var(--info-bg); color: var(--info-text); border-color: var(--info-bg); }
+
+        /* 記号フォントを参照しないように、記号部分に特定のスタイルを適用しない */
+        .status::before { content: ""; margin-right: 8px; }
+
 
         #downloadLinks ul {
             list-style: none;
@@ -134,10 +118,35 @@
             color: var(--primary-color);
             font-weight: 500;
             transition: color 0.2s ease;
-            display: block; /* クリック領域を広げる */
+            display: block;
         }
         #downloadLinks a:hover {
             color: #0056b3;
+        }
+        
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .zip-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .zip-button:hover {
+            background-color: #1e7e34;
+        }
+        .zip-button:disabled {
+            background-color: var(--dark-gray);
+            cursor: not-allowed;
         }
 
         .footer-note {
@@ -148,29 +157,204 @@
             padding-top: 20px;
             border-top: 1px solid var(--border-color);
         }
+        
+        /* 記号参照の凡例 */
+        .legend {
+            font-size: 0.8em;
+            color: var(--dark-gray);
+            margin-top: 10px;
+            padding-left: 10px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script type="module" src="app.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>PDF 分割ツール</h1>
-        <p class="info">ファイルをブラウザのメモリ内で安全に分割します。外部へのアップロードはありません。</p>
+        <h1>\uD83D\uDCC4 PDF 分割ツール</h1>
+        
+        <p class="info">ファイルをブラウザのメモリ内で分割します。外部へのアップロードはありません。</p>
+        
+        <div class="legend">
+            * 凡例: \u2705=成功, \uD83C\uDF89=完了, \uD83D\uDED1=エラー, \uD83D\uDD35=情報
+        </div>
         
         <label for="pdfFile">分割するPDFファイルを選択してください:</label>
-        <input type="file" id="pdfFile" accept=".pdf" disabled>
+        <input type="file" id="pdfFile" accept=".pdf">
         
-        <div id="status" class="status info">PDFファイルを読み込み中です...</div>
+        <div id="status" class="status success">\u2705 準備完了。PDFファイルを選択してください。</div>
 
         <h2>ダウンロード</h2>
+        <div class="button-group">
+            <button id="downloadZip" class="zip-button" disabled>すべてダウンロード (.zip)</button>
+        </div>
+
         <div id="downloadLinks">
             <p>ここに分割されたファイルが表示されます。</p>
         </div>
 
         <div class="footer-note">
-            <p>※ 各ファイルは8MB程度になるようにページごとに分割されます。<br>
+            <p>※ 各ファイルは8MB程度になるように分割されます。<br>
             ※ 1ページで8MBを超えるPDFは、そのページ単体で出力されます。</p>
         </div>
     </div>
+
+    <script>
+        // PDFのバイトデータを保存する配列
+        let splitFilesData = [];
+
+        // 安全を期した最大ファイルサイズ: 8MB (8 * 1024 * 1024 バイト)
+        const MAX_SIZE_BYTES = 8 * 1024 * 1024;
+
+        const pdfFileElement = document.getElementById('pdfFile');
+        const downloadLinksDiv = document.getElementById('downloadLinks');
+        const statusDiv = document.getElementById('status');
+        const downloadZipButton = document.getElementById('downloadZip');
+
+        // ----------------------------------------------------------------------
+        // 分割処理
+        // ----------------------------------------------------------------------
+
+        pdfFileElement.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            statusDiv.textContent = `\uD83D\uDD35 「${file.name}」の分割を開始します...`;
+            statusDiv.className = 'status info';
+            downloadLinksDiv.innerHTML = '';
+            downloadZipButton.disabled = true;
+            splitFilesData = []; // データをクリア
+            
+            try {
+                // 1. 元のPDFを読み込む
+                const arrayBuffer = await file.arrayBuffer();
+                const originalPdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                const totalPages = originalPdfDoc.getPageCount();
+                
+                let startPage = 0;
+                let partNumber = 1;
+
+                while (startPage < totalPages) {
+                    let currentPdfDoc = await PDFLib.PDFDocument.create();
+                    let currentPage = startPage;
+                    
+                    while (currentPage < totalPages) {
+                        const [copiedPage] = await currentPdfDoc.copyPages(originalPdfDoc, [currentPage]);
+                        currentPdfDoc.addPage(copiedPage);
+                        
+                        const currentBytes = await currentPdfDoc.save();
+                        
+                        if (currentBytes.length > MAX_SIZE_BYTES) {
+                            // サイズオーバー: 最後に加えたページを削除し、このチャンクを確定
+                            currentPdfDoc.removePage(currentPdfDoc.getPageCount() - 1);
+                            
+                            if (currentPdfDoc.getPageCount() === 0) {
+                                // 1ページで8MB超の場合
+                                const singlePageDoc = await PDFLib.PDFDocument.create();
+                                const [singleCopiedPage] = await singlePageDoc.copyPages(originalPdfDoc, [currentPage]);
+                                singlePageDoc.addPage(singleCopiedPage);
+                                await saveChunk(singlePageDoc, partNumber, file.name, downloadLinksDiv, `（※1ページで8MB超）`);
+                                
+                                startPage = currentPage + 1;
+                                partNumber++;
+                                break;
+                            }
+                            
+                            // チャンクをファイルとして保存
+                            await saveChunk(currentPdfDoc, partNumber, file.name, downloadLinksDiv);
+
+                            startPage = currentPage;
+                            partNumber++;
+                            break;
+                        }
+                        
+                        currentPage++;
+                    }
+                    
+                    // 最後のチャンクの処理
+                    if (currentPage === totalPages) {
+                        if (currentPdfDoc.getPageCount() > 0) {
+                            await saveChunk(currentPdfDoc, partNumber, file.name, downloadLinksDiv);
+                        }
+                        startPage = totalPages;
+                    }
+                }
+                
+                statusDiv.textContent = '\uD83C\uDF89 分割が完了しました。ダウンロードリンクをご確認ください。';
+                statusDiv.className = 'status success';
+                downloadZipButton.disabled = false; // ZIPボタンを有効化
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.textContent = `\uD83D\uDED1 エラーが発生しました: ${error.message}`;
+                statusDiv.className = 'status error';
+                downloadZipButton.disabled = true;
+            }
+        });
+
+        /**
+         * PDFドキュメントをバイト配列として取得し、ダウンロードリンクを生成
+         * また、一括ダウンロード用にデータを配列に格納
+         */
+        async function saveChunk(pdfDoc, partNum, originalFileName, container, note = '') {
+            const pdfBytes = await pdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            
+            // ファイルデータを保存
+            const fileName = `${originalFileName.replace('.pdf', '')}_part${partNum}.pdf`;
+            splitFilesData.push({ name: fileName, bytes: pdfBytes });
+
+            // 個別ダウンロードリンクを作成
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.textContent = `${fileName} (${(blob.size / (1024 * 1024)).toFixed(2)} MB) ${note}`;
+            
+            const li = document.createElement('li');
+            li.appendChild(a);
+            
+            let ul = container.querySelector('ul');
+            if (!ul) {
+                container.innerHTML = '';
+                ul = document.createElement('ul');
+                container.appendChild(ul);
+            }
+            ul.appendChild(li);
+        }
+
+        // ----------------------------------------------------------------------
+        // ZIP一括ダウンロード処理
+        // ----------------------------------------------------------------------
+
+        downloadZipButton.addEventListener('click', async () => {
+            if (splitFilesData.length === 0) return;
+
+            statusDiv.textContent = '\uD83D\uDD35 ZIPファイルを作成中です。しばらくお待ちください...';
+            statusDiv.className = 'status info';
+            downloadZipButton.disabled = true;
+
+            const zip = new JSZip();
+            const originalBaseName = pdfFileElement.files[0].name.replace('.pdf', '');
+
+            // 全ての分割ファイルをZIPに追加
+            splitFilesData.forEach(file => {
+                // jszipにUint8ArrayまたはArrayBufferとして追加
+                zip.file(file.name, file.bytes);
+            });
+
+            // ZIPファイルを生成
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            
+            // FileSaver.jsを使ってダウンロードをトリガー
+            saveAs(zipBlob, `${originalBaseName}_split.zip`);
+
+            statusDiv.textContent = '\u2705 ZIPファイルのダウンロードが開始されました。';
+            statusDiv.className = 'status success';
+            downloadZipButton.disabled = false;
+        });
+    </script>
 </body>
 </html>
