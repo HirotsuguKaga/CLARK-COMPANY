@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF 安全分割ツール (8MB)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --text-color: #333;
+            --light-gray: #f8f9fa;
+            --dark-gray: #6c757d;
+            --border-color: #dee2e6;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --info-bg: #e2f2ff; /* Light blue for info */
+            --info-text: #004085;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 上部に配置 */
+            min-height: 100vh;
+            padding-top: 40px; /* 上部に余白 */
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px; 
+            margin: 20px;
+            padding: 40px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+        }
+
+        h1 {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.6em;
+            font-weight: 500;
+            color: var(--dark-gray);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            color: var(--dark-gray);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input[type="file"] {
+            display: block; /* ブロック要素にして縦に並べる */
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
+            background-color: #fff;
+            box-sizing: border-box; /* paddingとborderをwidthに含める */
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background-color: #0056b3;
+        }
+
+
+        .status {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            font-size: 0.95em;
+        }
+        .success { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-bg); }
+        .error { background-color: var(--error-bg); color: var(--error-text); border-color: var(--error-bg); }
+        .info { background-color: var(--info-bg); color: var(--info-text); border-color: var(--info-bg); }
+
+        #downloadLinks ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+        #downloadLinks li {
+            margin-bottom: 12px;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        #downloadLinks li:last-child {
+            border-bottom: none;
+        }
+        #downloadLinks a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: color 0.2s ease;
+            display: block; /* クリック領域を広げる */
+        }
+        #downloadLinks a:hover {
+            color: #0056b3;
+        }
+
+        .footer-note {
+            font-size: 0.85em;
+            color: var(--dark-gray);
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script type="module" src="app.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF 分割ツール</h1>
+        <p class="info">ファイルをブラウザのメモリ内で安全に分割します。外部へのアップロードはありません。</p>
+        
+        <label for="pdfFile">分割するPDFファイルを選択してください:</label>
+        <input type="file" id="pdfFile" accept=".pdf" disabled>
+        
+        <div id="status" class="status info">PDFファイルを読み込み中です...</div>
+
+        <h2>ダウンロード</h2>
+        <div id="downloadLinks">
+            <p>ここに分割されたファイルが表示されます。</p>
+        </div>
+
+        <div class="footer-note">
+            <p>※ 各ファイルは8MB程度になるようにページごとに分割されます。<br>
+            ※ 1ページで8MBを超えるPDFは、そのページ単体で出力されます。</p>
+        </div>
+    </div>
+</body>
+</html>
