@@ -1,4 +1,4 @@
-// pdf-libはindex.htmlで読み込まれているため、グローバル変数としてPDFLibを使用します
+// pdf-libはindex.htmlで読み込まれているため、グローバル変数としてPDFLibを使用
 // import { PDFDocument } from 'pdf-lib'; は不要
 
 // 安全を期した最大ファイルサイズ: 8MB (8 * 1024 * 1024 バイト)
