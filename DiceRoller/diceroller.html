@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DICE ROLLER</title>
     <style>
-        /* CSSスタイル */
         body {
             display: flex;
             flex-direction: column;
@@ -110,7 +109,7 @@
             transition: background-color 0.3s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             z-index: 3; /* サイコロより手前に */
-            position: relative; /* z-indexを有効にするため */
+            position: relative; /* z-indexを有効に */
             margin-top: 150px; /* サイコロエリアの下に配置 */
         }
 
@@ -165,21 +164,20 @@
     <p id="resultText"></p>
 
     <script>
-        // JavaScriptコード
         document.addEventListener('DOMContentLoaded', () => {
             const rollButton = document.getElementById('rollButton');
             const diceContainer1 = document.getElementById('diceContainer1');
             const dice1 = document.getElementById('dice1');
-            const shadow1 = document.getElementById('shadow1'); // 影要素
+            const shadow1 = document.getElementById('shadow1'); // 影
             const diceContainer2 = document.getElementById('diceContainer2');
             const dice2 = document.getElementById('dice2');
-            const shadow2 = document.getElementById('shadow2'); // 影要素
+            const shadow2 = document.getElementById('shadow2'); // 影
             const resultText = document.getElementById('resultText');
 
             //効果音の準備
             const audio = new Audio('dice_roll.mp3'); 
             
-            // サイコロの各面に表示される数字と、それに対応する回転角度を定義
+            // 各面に表示される数字と、それに対応する回転角度を定義
             const faces = {
                 1: { rx: 0, ry: 0 },
                 2: { rx: -90, ry: 0 },
@@ -192,14 +190,14 @@
             function rollDice(diceElement, diceContainerElement, shadowElement, isFirstDice) {
                 const result = Math.floor(Math.random() * 6) + 1;
 
-                // 転がり中は影を非表示にする
+                // 転がり中は影を非表示に
                 shadowElement.classList.add('hidden');
 
                 // 開始位置と終了位置を調整
                 const startOffsetX = (isFirstDice ? 300 : 350) + Math.random() * 50;
                 const startOffsetY = (isFirstDice ? -300 : -350) - Math.random() * 50;
                 
-                // 停止位置はdice-areaの中央からの相対位置になる
+                // 停止位置はdice-areaの中央からの相対位置に
                 const endOffsetX = (isFirstDice ? -25 : 25) + (Math.random() * 30 - 15);
                 const endOffsetY = (Math.random() * 30 - 15);
 
@@ -228,7 +226,7 @@
                 audio.play().catch(e => console.log("Audio play failed:", e));
 
                 rollButton.disabled = true;
-                resultText.textContent = "転がし中...";
+                resultText.textContent = "転がり中...";
 
                 // アニメーションのリセット
                 diceContainer1.style.transition = 'none';
@@ -259,7 +257,7 @@
                     setTimeout(() => {
                         resultText.textContent = `${result1} と ${result2} (合計 ${result1 + result2})`;
                         rollButton.disabled = false;
-                        // アニメーション終了後に影を表示する
+                        // アニメーション終了後に影を表示
                         shadow1.classList.remove('hidden');
                         shadow2.classList.remove('hidden');
                     }, 1800);
@@ -273,7 +271,7 @@
             dice1.style.transform = `rotateX(0deg) rotateY(0deg)`;
             dice2.style.transform = `rotateX(0deg) rotateY(0deg)`;
             
-            // ページロード時にサイコロを振る処理を呼び出す
+            // ページロード時にサイコロを振る
             rollButton.click();
         });
     </script>
