@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta name="author" content="Clark & Company">
+    <meta charset="UTF-8">
+    <title>PDF Merge Tool</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --text-color: #333;
+            --light-gray: #f8f9fa;
+            --dark-gray: #6c757d;
+            --border-color: #dee2e6;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --info-bg: #e2f2ff;
+            --info-text: #004085;
+        }
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #447390;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 720px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+        h1 { text-align: center; margin-bottom: 25px; }
+        label { font-weight: 500; margin-bottom: 10px; display: block; }
+        input[type="file"] {
+            display: block; width: 100%; padding: 12px;
+            margin-bottom: 25px; border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .status {
+            padding: 15px; border-radius: 8px; margin-top: 20px;
+            font-weight: 500; border: 1px solid transparent;
+        }
+        .success { background: var(--success-bg); color: var(--success-text); }
+        .error { background: var(--error-bg); color: var(--error-text); }
+        .info { background: var(--info-bg); color: var(--info-text); }
+        .button-group { margin-top: 20px; text-align: right; }
+        .merge-button {
+            background-color: var(--primary-color); color: white;
+            border: none; padding: 10px 20px; border-radius: 6px;
+            cursor: pointer;
+        }
+        .merge-button:disabled { background-color: var(--dark-gray); cursor: not-allowed; }
+        #fileList { list-style: none; padding: 0; margin-top: 15px; }
+        #fileList li {
+            padding: 10px; margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px; background: var(--light-gray);
+            cursor: grab;
+        }
+        #fileList li.dragging { opacity: 0.5; }
+        .footer-note {
+            font-size: 0.85em; color: var(--dark-gray);
+            text-align: center; margin-top: 40px;
+            border-top: 1px solid var(--border-color); padding-top: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>PDF 結合ツール</h1>
+    <p class="info">&#x2139; 選択した複数のPDFをブラウザ内で結合します。外部へのアップロードはありません。</p>
+    <label for="pdfFiles">結合するPDFファイルを選択してください（複数可）:</label>
+    <input type="file" id="pdfFiles" accept=".pdf" multiple>
+    <div id="status" class="status info">&#x2139; PDFファイルを選択してください。</div>
+    <ul id="fileList"></ul>
+    <div class="button-group">
+        <button id="mergeButton" class="merge-button" disabled>結合してダウンロード</button>
+    </div>
+    <div class="footer-note">
+        <p>※ ファイル名末尾に「_part〇」が付いている場合は自動的に連番順に並べます。<br>
+        ※ ドラッグ＆ドロップで順序を入れ替えることもできます。</p>
+        <p>by Clark & Company</p>
+    </div>
+</div>
+
+<script>
+const pdfFilesElement = document.getElementById('pdfFiles');
+const mergeButton = document.getElementById('mergeButton');
+const statusDiv = document.getElementById('status');
+const fileList = document.getElementById('fileList');
+let selectedFiles = [];
+
+pdfFilesElement.addEventListener('change', (event) => {
+    selectedFiles = Array.from(event.target.files);
+
+    // 連番が付いている場合は自動でソート
+    selectedFiles.sort((a, b) => {
+        const regex = /_part(\d+)$/i;
+        const aName = a.name.replace(/\.pdf$/i, '');
+        const bName = b.name.replace(/\.pdf$/i, '');
+        const aMatch = aName.match(regex);
+        const bMatch = bName.match(regex);
+        if (aMatch && bMatch) {
+            return parseInt(aMatch[1], 10) - parseInt(bMatch[1], 10);
+        }
+        return a.name.localeCompare(b.name);
+    });
+
+    renderFileList();
+    if (selectedFiles.length > 0) {
+        statusDiv.textContent = '\u2705 ' + selectedFiles.length + ' 件のPDFが選択されました。ドラッグ＆ドロップで順序を並べ替えできます。';
+        statusDiv.className = 'status success';
+        mergeButton.disabled = false;
+    } else {
+        statusDiv.innerHTML = '&#x2139; PDFファイルを選択してください。';
+        statusDiv.className = 'status info';
+        mergeButton.disabled = true;
+    }
+});
+
+function renderFileList() {
+    fileList.innerHTML = '';
+    selectedFiles.forEach(file => {
+        const li = document.createElement('li');
+        li.textContent = file.name;
+        li.draggable = true;
+        fileList.appendChild(li);
+    });
+}
+
+// D&Dで並べ替える処理
+fileList.addEventListener('dragstart', (e) => e.target.classList.add('dragging'));
+fileList.addEventListener('dragend', (e) => e.target.classList.remove('dragging'));
+fileList.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const dragging = fileList.querySelector('.dragging');
+    const afterElement = getDragAfterElement(fileList, e.clientY);
+    if (afterElement == null) {
+        fileList.appendChild(dragging);
+    } else {
+        fileList.insertBefore(dragging, afterElement);
+    }
+});
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+mergeButton.addEventListener('click', async () => {
+    if (selectedFiles.length === 0) return;
+    statusDiv.textContent = '\u23F3 結合処理中です...';
+    statusDiv.className = 'status info';
+    try {
+        const mergedPdf = await PDFLib.PDFDocument.create();
+
+        // リストの並び順に従って結合
+        const orderedFileNames = [...fileList.querySelectorAll('li')].map(li => li.textContent);
+        const orderedFiles = orderedFileNames.map(name => selectedFiles.find(f => f.name === name));
+
+        for (const file of orderedFiles) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+            const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+            copiedPages.forEach(page => mergedPdf.addPage(page));
+        }
+
+        const mergedBytes = await mergedPdf.save();
+        const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+
+        // 最初のファイル名の末尾に-mergedを付加
+        let baseName = orderedFiles[0].name.replace(/\.pdf$/i, '');
+        baseName = baseName.replace(/_part\d+$/i, '');
+        const mergedFileName = baseName + '-merged.pdf';
+
+        saveAs(blob, mergedFileName);
+        statusDiv.textContent = '\u2705 結合が完了しました。ダウンロードが開始されます。';
+        statusDiv.className = 'status success';
+    } catch (error) {
+        console.error(error);
+        statusDiv.textContent = '\u274C エラーが発生しました: ' + error.message;
+        statusDiv.className = 'status error';
+    }
+});
+</script>
+</body>
+</html>
