@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta name="author" content="Clark & Company">
+    <meta property="og:title" content="PDF分割ツール">
+    <meta property="og:description" content="PDFを10MB以下に分割します">
+    <meta charset="UTF-8">
+    <title>PDF Split Tool</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --text-color: #333;
+            --light-gray: #f8f9fa;
+            --dark-gray: #6c757d;
+            --border-color: #dee2e6;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --info-bg: #e2f2ff;
+            --info-text: #004085;
+        }
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #449073;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 720px;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+        h1 { text-align: center; margin-bottom: 25px; }
+        h2 { margin-top: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        label { font-weight: 500; margin-bottom: 10px; display: block; }
+        input[type="file"] {
+            display: block; width: 100%; padding: 12px;
+            margin-bottom: 25px; border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .status {
+            padding: 15px; border-radius: 8px; margin-top: 20px;
+            font-weight: 500; border: 1px solid transparent;
+        }
+        .success { background: var(--success-bg); color: var(--success-text); }
+        .error { background: var(--error-bg); color: var(--error-text); }
+        .info { background: var(--info-bg); color: var(--info-text); }
+        #downloadLinks ul { list-style: none; padding: 0; margin-top: 15px; }
+        #downloadLinks li { margin-bottom: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border-color); }
+        #downloadLinks li:last-child { border-bottom: none; }
+        #downloadLinks a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+        .button-group { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+        .zip-button {
+            background-color: #28a745; color: white; border: none;
+            padding: 10px 20px; border-radius: 6px; cursor: pointer;
+        }
+        .zip-button:disabled { background-color: var(--dark-gray); cursor: not-allowed; }
+        .footer-note { font-size: 0.85em; color: var(--dark-gray); text-align: center; margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>PDF 分割ツール</h1>
+    <p class="info">&#x2139; ファイルをブラウザのメモリ内で分割します。外部へのアップロードはありません。</p>
+    <label for="pdfFile">分割するPDFファイルを選択してください:</label>
+    <input type="file" id="pdfFile" accept=".pdf">
+    <div id="status" class="status success">&#x2705; 準備完了。PDFファイルを選択してください。</div>
+
+    <h2>ダウンロード</h2>
+    <div class="button-group">
+        <button id="downloadAll" class="zip-button" disabled>すべてダウンロード</button>
+    </div>
+
+    <div id="downloadLinks"><p>ここに分割されたファイルが表示されます。</p></div>
+    <div class="footer-note">
+        <p>※ 各ファイルが10MB以下になるように分割されます。<br>
+        ※ 1ページが10MBを超える場合、そのページ単体で出力されます。</p>
+        <p>by Clark &amp; Company</p>
+    </div>
+</div>
+
+<script>
+let splitFilesData = [];
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // ここで最大10MBに設定
+const pdfFileElement = document.getElementById('pdfFile');
+const downloadLinksDiv = document.getElementById('downloadLinks');
+const statusDiv = document.getElementById('status');
+const downloadAllButton = document.getElementById('downloadAll');
+
+pdfFileElement.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    statusDiv.textContent = '\u2139 「' + file.name + '」の分割を開始します...';
+    statusDiv.className = 'status info';
+    downloadLinksDiv.innerHTML = '';
+    downloadAllButton.disabled = true;
+    splitFilesData = [];
+
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const originalPdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        const totalPages = originalPdfDoc.getPageCount();
+        let startPage = 0;
+        let partNumber = 1;
+
+        while (startPage < totalPages) {
+            let currentPdfDoc = await PDFLib.PDFDocument.create();
+            let currentPage = startPage;
+
+            while (currentPage < totalPages) {
+                const [copiedPage] = await currentPdfDoc.copyPages(originalPdfDoc, [currentPage]);
+                currentPdfDoc.addPage(copiedPage);
+                let currentBytes = await currentPdfDoc.save();
+
+                if (currentBytes.length > MAX_SIZE_BYTES) {
+                    while (currentBytes.length > MAX_SIZE_BYTES && currentPdfDoc.getPageCount() > 1) {
+                        currentPdfDoc.removePage(currentPdfDoc.getPageCount() - 1);
+                        currentBytes = await currentPdfDoc.save();
+                    }
+
+                    if (currentPdfDoc.getPageCount() === 1 && currentBytes.length > MAX_SIZE_BYTES) {
+                        await saveChunk(currentPdfDoc, partNumber, file.name, downloadLinksDiv, '（※1ページで10MB超）');
+                        startPage = currentPage + 1;
+                        partNumber++;
+                        break;
+                    } else {
+                        await saveChunk(currentPdfDoc, partNumber, file.name, downloadLinksDiv);
+                        partNumber++;
+                        startPage = currentPage;
+                        break;
+                    }
+                }
+                currentPage++;
+            }
+
+            if (currentPage === totalPages) {
+                if (currentPdfDoc.getPageCount() > 0) {
+                    await saveChunk(currentPdfDoc, partNumber, file.name, downloadLinksDiv);
+                }
+                startPage = totalPages;
+            }
+        }
+
+        statusDiv.textContent = '\uD83C\uDF89 分割が完了しました。ダウンロードリンクをご確認ください。';
+        statusDiv.className = 'status success';
+        downloadAllButton.disabled = false;
+
+    } catch (error) {
+        console.error(error);
+        statusDiv.textContent = '\u274C エラーが発生しました: ' + error.message;
+        statusDiv.className = 'status error';
+        downloadAllButton.disabled = true;
+    }
+});
+
+async function saveChunk(pdfDoc, partNum, originalFileName, container, note = '') {
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const fileName = `${originalFileName.replace('.pdf', '')}_part${partNum}.pdf`;
+    splitFilesData.push({ name: fileName, bytes: pdfBytes });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.textContent = `${fileName} (${(blob.size / (1024 * 1024)).toFixed(2)} MB) ${note}`;
+
+    // ObjectURL解放処理を追加
+    a.addEventListener('click', () => {
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    const li = document.createElement('li');
+    li.appendChild(a);
+
+    let ul = container.querySelector('ul');
+    if (!ul) {
+        container.innerHTML = '';
+        ul = document.createElement('ul');
+        container.appendChild(ul);
+    }
+    ul.appendChild(li);
+}
+
+// 連続ダウンロードする処理　300mm秒遅延させてループ
+downloadAllButton.addEventListener('click', async () => {
+    if (splitFilesData.length === 0) return;
+    statusDiv.textContent = '\u2139 個別ファイルを順番にダウンロードしています...';
+    statusDiv.className = 'status info';
+    downloadAllButton.disabled = true;
+
+    for (const file of splitFilesData) {
+        const blob = new Blob([file.bytes], { type: 'application/pdf' });
+        saveAs(blob, file.name);
+        await new Promise(r => setTimeout(r, 300));
+    }
+
+    statusDiv.textContent = '\u2705 個別ファイルのダウンロードが完了しました。';
+    statusDiv.className = 'status success';
+    downloadAllButton.disabled = false;
+});
+</script>
+</body>
+</html>
