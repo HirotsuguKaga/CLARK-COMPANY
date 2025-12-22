@@ -198,18 +198,29 @@ function marked(text) {
         text = text.replace(/^\\/gm, '');  //行頭のバックスラッシュを取り除く
         return '<p>' + text + '</p>';
     };
+    
+    
+    
     Renderer.prototype.linktext = function (text, link) {        //リンクテキスト
         if (text.match(/^\$(.*\.mp4).*$/)) {              //動画付きのリンクを作成
             const matchVideo = text.replace(/\.[^/.]+$/, "");//動画ファイル名を取得
-            const video = matchVideo.match(/^\$(.+)/);;//動画ファイル名を取得
+            const video = matchVideo.match(/^\$(.+)/);//動画ファイル名を取得
             const videoName = video[1].trim();
-                console.log(videoName);
             text = text.replace(/.*\.mp4/, '');
-            return `<p><a href="#p` + link + `" onclick="startVideo('` + videoName + `')">` + text + `</a></p><video id="` + videoName + `" class="originalVideo"><source src="img/` + videoName + `.mp4" type="video/mp4">お使いのブラウザは動画タグに対応していません。</video>`;    
+            return `<p><a href="#p` + link + `" onclick="startVideo('` + videoName + `')">` + text + `</a></p><video id="` + videoName + `" class="originalVideo"><source src="video/` + videoName + `.mp4" type="video/mp4">お使いのブラウザは動画タグに対応していません。</video>`;    
+        } else if (text.match(/^\$(.*\.mp3).*$/)) {              //音声付きのリンクを作成
+            const matchAudio = text.replace(/\.[^/.]+$/, "");//音声ファイル名を取得
+            const audio = matchAudio.match(/^\$(.+)/);//音声ファイル名を取得
+            const audioName = audio[1].trim();
+            text = text.replace(/.*\.mp3/, '');
+               // onclickでplayAudioを実行。hrefによるジャンプはそのまま維持されます
+            return '<p><a href="#p' + link + '" onclick="playAudio(\'' + audioName + '\')">' + text + '</a></p>';
         } else {  
             return '<p><a href="#p' + link + '">' + text + '</a></p>';   //通常のリンクを返す
         }
     };
+    
+    
     Renderer.prototype.blockquote = function (text) {
         return '<blockquote>' + text + '</blockquote>';
     };
@@ -255,15 +266,18 @@ const lexer = function(src) {
         } else if (/^\d+\.\s/.test(line)) {
             tokens.push({ type: 'listitem', ordered: true, text: line.slice(line.indexOf('.') + 1).trim() });
         } else if (line.match(/(.*)(\d+)+へ$/)) {                      //リンクテキスト
-            matchLink = line.match(/(.*)(\d+)+へ$/);
-            tokens.push({ type: 'linktext', link: matchLink[2],text: line });
+            matchLink = line.match(/(\d+)+へ$/);
+            tokens.push({ type: 'linktext', link: matchLink[1],text: line });
         } else if (line.startsWith('$')) {                             //画像・動画
             // 行頭の $ の直後に拡張子が mp4 のファイル名をビデオタグに変換
             const matchVideo = line.match(/^\$(.*\.mp4)$/);
+            const matchAudio = line.match(/^\$(.*\.mp3)$/);
             const matchImage = line.match(/^\$(.+)/);
             if (matchVideo) {
                 tokens.push({ type: 'video', text: matchVideo[1].trim() });
-            }else if (matchImage) {
+            }else if (matchAudio) {
+                tokens.push({ type: 'Audio', text: matchAudio[1].trim() });
+            }if (matchImage) {
                 tokens.push({ type: 'image', text: matchImage[1].trim() });
             }
         } else if (line.trim() === '') {                               //スペース
@@ -300,7 +314,7 @@ const parser = function(tokens, options) {
                 out += '<p><img src="img/' + token.text + '.webp" alt="' + token.text + '"></p>';
                 break;
             case 'video':
-                out += '<div class="video"><video controls><source src="img/' + token.text + '" type="video/mp4">Your browser does not support the video tag.</video></div>';
+                out += '<div class="video"><video controls><source src="video/' + token.text + '" type="video/mp4">Your browser does not support the video tag.</video></div>';
                 break;
             case 'linktext':
                 out += renderer.linktext(token.text, token.link);
@@ -388,7 +402,7 @@ downloadPDFButton.addEventListener("click", () => {
 <body onload="window.print()">
 <div id="container">
 ${marked(markdownText)}
-    <small style="text-align:right; margin-top:200px; display:block; font-size:0.9em;">powered by Gamebook Editor by <a href="https://clark.booth.pm/" style="padding:0; font-weight:none; text-decoration:none;">Clark & Company</a> &copy;2024</small>
+    <small style="text-align:right; margin-top:200px; display:block; font-size:0.9em;">powered by Gamebook Editor by <a href="https://clark.booth.pm/" style="padding:0; font-weight:none; text-decoration:none;">Clark & Company</a> &copy;2025</small>
 </div>
 </body>
 </html>`;
@@ -510,6 +524,20 @@ const closeVideo = () => {
         }
     }, 500);
 };
+
+///////////////////// 音声再生関数 /////////////////////////////////////
+let currentAudio = null; // 再生中の音声を管理
+
+function playAudio(fileName) {
+    // すでに再生中の音声があれば停止してリセット
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+    }
+    // 新しい音声オブジェクトを作成
+    currentAudio = new Audio('audio/' + fileName + '.mp3');
+    currentAudio.play().catch(e => console.log("Audio play failed:", e));
+}
 
 closeButton.addEventListener('click', closeVideo);
 videoLayer.addEventListener('click', (event) => {
